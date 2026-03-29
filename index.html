@@ -395,7 +395,7 @@ function renderBrief(text){
         if(!line.startsWith('ARTICLE###'))continue;
         hasArticles=true;
         const p=line.replace('ARTICLE###','').split('###').map(s=>s.trim());
-        const title=p[0]||'Article',source=p[1]||'',url=p[2]||'',summary=p[3]||'';
+        const title=p[0]||'Article',source=p[1]||'',summary=p[2]||p[3]||'';
         briefText+=`${title}. ${summary} `;
         const searchUrl=`https://news.google.com/search?q=${encodeURIComponent(title+(source?' '+source:''))}&hl=fr`;
         articlesHtml+=`<div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
