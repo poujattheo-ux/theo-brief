@@ -115,7 +115,10 @@ textarea::placeholder{color:var(--muted)}
   <div id="morning-content" style="display:none">
     <div class="brief-header">
       <div class="brief-date" id="briefDate"></div>
-      <div class="brief-title">Ton brief<br>du jour.</div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+        <div class="brief-title">Ton brief<br>du jour.</div>
+        <button onclick="clearCacheAndRegenerate()" style="flex-shrink:0;padding:7px 12px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.08em;margin-bottom:4px">↺ Refaire</button>
+      </div>
     </div>
     <div class="audio-bar">
       <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">▶</button>
@@ -220,6 +223,24 @@ async function generateBrief(){
   const topics=[...document.querySelectorAll('.topic-pill.selected')].map(p=>p.dataset.topic);
   if(!topics.length){alert('Sélectionne au moins une rubrique.');return;}
   const freeText=document.getElementById('freeTopics').value.trim();
+
+  // CACHE JOURNALIER — même brief toute la journée
+  const today=new Date().toISOString().slice(0,10); // YYYY-MM-DD
+  const cacheKey='theo_brief_'+today;
+  const cached=localStorage.getItem(cacheKey);
+  if(cached){
+    document.getElementById('generateBtn').disabled=false;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('page-morning').classList.add('active');
+    document.getElementById('tab-morning').classList.add('active');
+    document.getElementById('morning-empty').style.display='none';
+    document.getElementById('morning-loading').style.display='none';
+    document.getElementById('morning-content').style.display='none';
+    renderBrief(cached);
+    return;
+  }
+
   document.getElementById('generateBtn').disabled=true;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -236,34 +257,34 @@ async function generateBrief(){
   // Build section instructions based on selected topics
   const sectionInstructions=[];
   if(topics.includes('tech'))sectionInstructions.push(`===SECTION:tech===
-Utilise Google Search pour trouver 3 vrais articles publiés cette semaine sur la tech, l'IA, les startups, la big tech.
-Pour CHAQUE article, format STRICT sur une seule ligne :
-ARTICLE###[Titre exact de l'article]###[Nom du média : ex TechCrunch, Le Monde, Wired]###[URL complète]###[Résumé dense de 8 à 12 lignes en français : contexte, acteurs impliqués, chiffres clés, implications concrètes. Vraies informations extraites de l'article, pas de généralités.]`);
+IMPORTANT : Utilise OBLIGATOIREMENT Google Search. Ne cite que des articles que tu as réellement trouvés. Si tu n'es pas certain qu'un article existe, ne le mets pas.
+Trouve 3 vrais articles de la semaine en cours sur tech, IA, startups, big tech. Pour chaque article trouvé via search :
+ARTICLE###[Titre exact tel qu'il apparaît dans les résultats de recherche]###[Nom du média exact]###[Résumé très dense de 10 à 15 lignes : contexte complet, qui sont les acteurs, quels chiffres, quelles implications pour l'industrie tech, pourquoi c'est important à savoir aujourd'hui]`);
 
   if(topics.includes('monde'))sectionInstructions.push(`===SECTION:monde===
-Utilise Google Search pour trouver 3 vrais articles internationaux majeurs de cette semaine.
-Pour CHAQUE article, format STRICT sur une seule ligne :
-ARTICLE###[Titre exact]###[Média]###[URL]###[Résumé dense de 8 à 12 lignes : faits précis, acteurs, enjeux géopolitiques ou économiques réels]`);
+IMPORTANT : Utilise OBLIGATOIREMENT Google Search. Ne cite que des articles réels trouvés.
+Trouve 3 vrais articles internationaux majeurs de cette semaine. Pour chaque :
+ARTICLE###[Titre exact]###[Média exact]###[Résumé dense de 10 à 15 lignes : faits précis, acteurs nommés, contexte géopolitique ou économique, chiffres, enjeux concrets]`);
 
   if(topics.includes('france'))sectionInstructions.push(`===SECTION:france===
-Utilise Google Search pour trouver 2 vrais articles français importants de cette semaine.
-Pour CHAQUE article, format STRICT sur une seule ligne :
-ARTICLE###[Titre exact]###[Média]###[URL]###[Résumé dense de 8 à 12 lignes : faits, acteurs, impact en France]`);
+IMPORTANT : Utilise OBLIGATOIREMENT Google Search. Ne cite que des articles réels trouvés.
+Trouve 2 vrais articles français importants de cette semaine. Pour chaque :
+ARTICLE###[Titre exact]###[Média exact]###[Résumé dense de 10 à 15 lignes : faits, acteurs, impact en France, chiffres si disponibles]`);
 
   if(topics.includes('vocab'))sectionInstructions.push(`===SECTION:vocab===
-Choisis UN terme anglais incontournable dans le monde du commercial tech / sales (méthodes de vente, outils CRM, stratégie B2B, growth, prospection, account management, etc.).
-Format STRICT sur une seule ligne :
-TERM###[Mot en anglais]###[Catégorie grammaticale]###[Définition complète en français : 6 à 8 lignes minimum. Explique le concept en profondeur, son origine, pourquoi c'est crucial dans le métier de commercial tech, comment ça s'utilise concrètement]###[Exemple de phrase en anglais utilisée en contexte professionnel réel]###[Exemple concret d'usage en entreprise tech : scénario réaliste de 3-4 lignes]`);
+Choisis UN terme anglais incontournable du monde commercial tech / sales B2B (méthodes de vente, CRM, growth, prospection, account management, négociation, SaaS sales, etc.).
+Format STRICT :
+TERM###[Mot en anglais]###[Catégorie grammaticale]###[Définition approfondie en français : 8 à 10 lignes minimum. Origine du concept, pourquoi c'est crucial dans le métier de commercial tech, comment ça s'applique concrètement au quotidien d'un sales]###[Exemple de phrase professionnelle en anglais]###[Scénario concret d'usage en entreprise tech : situation réaliste de 4 à 5 lignes]`);
 
   if(topics.includes('citation'))sectionInstructions.push(`===SECTION:citation===
-UNE citation inspirante liée au business, au leadership, à la tech ou à la vente. Format :
-QUOTE###[La citation en langue originale]###[Auteur, titre/entreprise]###[Pourquoi cette citation est puissante : 3-4 lignes d'analyse concrète]`);
+UNE citation forte et vérifiée liée au business, au leadership, à la tech ou à la vente. Vérifie via Google Search que la citation est réellement attribuée à cette personne.
+Format : QUOTE###[Citation en langue originale]###[Prénom Nom, titre/rôle]###[Analyse de 4 à 5 lignes : pourquoi cette citation est puissante, ce qu'elle apprend concrètement]`);
 
   if(topics.includes('horoscope'))sectionInstructions.push(`===SECTION:horoscope===
-Horoscope du jour pour le signe Vierge. Ton direct et concret, pas vague. 4-5 lignes max.`);
+Utilise Google Search pour trouver le VRAI horoscope du jour pour le signe Vierge (cherche "horoscope vierge aujourd'hui ${dateStr}" ou "horoscope vierge ${today}"). Cite la source. Résume le vrai horoscope trouvé en 4 à 5 lignes concrètes. Si tu ne trouves pas le vrai horoscope du jour via search, dis-le clairement.`);
 
   if(topics.includes('culture'))sectionInstructions.push(`===SECTION:culture===
-UN fait de culture générale surprenant et important à savoir. Peut être lié à l'histoire, la science, l'économie, la géographie, ou l'actualité récente. Quelque chose que peu de gens savent mais que tout le monde devrait savoir. 6 à 10 lignes avec contexte et pourquoi c'est important à connaître.`);
+UN fait de culture générale vérifiable et peu connu : histoire, science, économie, géographie, ou lié à une actualité récente. Quelque chose de précis et sourcé, pas une généralité. Explique en 8 à 10 lignes : le fait lui-même, son contexte, pourquoi c'est important à savoir.`);
 
   const prompt=`Tu es le rédacteur d'un brief matinal de haute qualité pour Théo, 21 ans, étudiant Grande École (Neoma Business School), passionné de tech, de business et de vente.
 
@@ -296,6 +317,8 @@ IMPORTANT : Respecte exactement les séparateurs ### et les marqueurs ARTICLE, T
     if(!res.ok)throw new Error(data.error?.message||'Erreur API');
     const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
     if(!text)throw new Error('Réponse vide');
+    // Sauvegarde dans le cache du jour
+    localStorage.setItem(cacheKey, text);
     renderBrief(text);
   }catch(err){
     document.getElementById('morning-loading').style.display='none';
@@ -374,7 +397,7 @@ function renderBrief(text){
         const p=line.replace('ARTICLE###','').split('###').map(s=>s.trim());
         const title=p[0]||'Article',source=p[1]||'',url=p[2]||'',summary=p[3]||'';
         briefText+=`${title}. ${summary} `;
-        const searchUrl=`https://www.google.com/search?q=${encodeURIComponent(title+(source?' '+source:''))}`;
+        const searchUrl=`https://news.google.com/search?q=${encodeURIComponent(title+(source?' '+source:''))}&hl=fr`;
         articlesHtml+=`<div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
             <div style="font-size:15px;font-weight:600;line-height:1.35;flex:1">${title}</div>
@@ -428,6 +451,14 @@ function cycleSpeed(){
   currentSpeed=speeds[(i+1)%speeds.length];
   document.getElementById('speedBtn').textContent=currentSpeed+'×';
   if(isSpeaking){stopAudio();startAudio();}
+}
+
+function clearCacheAndRegenerate(){
+  const today=new Date().toISOString().slice(0,10);
+  localStorage.removeItem('theo_brief_'+today);
+  document.getElementById('morning-content').style.display='none';
+  document.getElementById('morning-empty').style.display='block';
+  switchTab('evening',document.getElementById('tab-evening'));
 }
 
 initDate();loadApiKey();
