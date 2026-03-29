@@ -140,6 +140,8 @@ textarea::placeholder{color:var(--muted)}
     <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Tech du jour</div><div class="topic-desc">Anglais</div></div>
     <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">Optionnel</div></div>
     <div class="topic-pill" data-topic="citation" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Citation du jour</div><div class="topic-desc">Optionnel</div></div>
+    <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Optionnel</div></div>
+    <div class="topic-pill selected" data-topic="culture" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Culture générale</div><div class="topic-desc">Quotidien</div></div>
   </div>
   <span class="label">Sujets libres (optionnel)</span>
   <textarea id="freeTopics" placeholder="Ex: Comment fonctionne un LLM ? Quelles actus sur OpenAI ?"></textarea>
@@ -227,36 +229,58 @@ async function generateBrief(){
   document.getElementById('morning-loading').style.display='block';
   document.getElementById('morning-content').style.display='none';
 
-  const labels={
-    tech:'News Tech & IA (actualités IA, startups, big tech)',
-    monde:'News Monde (3 actualités internationales majeures)',
-    vocab:'Vocabulaire Tech (1 terme anglais clé avec définition et exemple)',
-    france:'News France (2 actualités françaises importantes)',
-    citation:'Citation inspirante (business/philosophie/tech)'
-  };
   const now=new Date();
   const dateStr=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const selectedLabels=topics.map(t=>labels[t]).join('\n- ');
-  const extra=freeText?`\n\nSujets supplémentaires : ${freeText}`:'';
+  const extra=freeText?`\n\nSujets supplémentaires demandés par Théo : ${freeText}`:'';
 
-  const prompt=`Tu es rédacteur d'un brief matinal pour Théo, 21 ans, étudiant Neoma Business School, stage chef de projet digital, passionné tech et business.
+  // Build section instructions based on selected topics
+  const sectionInstructions=[];
+  if(topics.includes('tech'))sectionInstructions.push(`===SECTION:tech===
+Utilise Google Search pour trouver 3 vrais articles publiés cette semaine sur la tech, l'IA, les startups, la big tech.
+Pour CHAQUE article, format STRICT sur une seule ligne :
+ARTICLE###[Titre exact de l'article]###[Nom du média : ex TechCrunch, Le Monde, Wired]###[URL complète]###[Résumé dense de 8 à 12 lignes en français : contexte, acteurs impliqués, chiffres clés, implications concrètes. Vraies informations extraites de l'article, pas de généralités.]`);
 
-Date : ${dateStr}
+  if(topics.includes('monde'))sectionInstructions.push(`===SECTION:monde===
+Utilise Google Search pour trouver 3 vrais articles internationaux majeurs de cette semaine.
+Pour CHAQUE article, format STRICT sur une seule ligne :
+ARTICLE###[Titre exact]###[Média]###[URL]###[Résumé dense de 8 à 12 lignes : faits précis, acteurs, enjeux géopolitiques ou économiques réels]`);
 
-Rubriques :
-- ${selectedLabels}${extra}
+  if(topics.includes('france'))sectionInstructions.push(`===SECTION:france===
+Utilise Google Search pour trouver 2 vrais articles français importants de cette semaine.
+Pour CHAQUE article, format STRICT sur une seule ligne :
+ARTICLE###[Titre exact]###[Média]###[URL]###[Résumé dense de 8 à 12 lignes : faits, acteurs, impact en France]`);
 
-RÈGLES STRICTES :
-- Français, sauf vocab (anglais)
-- Ton direct, dense, concret — acteurs nommés, chiffres si dispos
-- Vocab : mot | catégorie | définition française | exemple pro anglais
-- Format OBLIGATOIRE avec clés exactes (tech, monde, vocab, france, citation) :
+  if(topics.includes('vocab'))sectionInstructions.push(`===SECTION:vocab===
+Choisis UN terme anglais incontournable dans le monde du commercial tech / sales (méthodes de vente, outils CRM, stratégie B2B, growth, prospection, account management, etc.).
+Format STRICT sur une seule ligne :
+TERM###[Mot en anglais]###[Catégorie grammaticale]###[Définition complète en français : 6 à 8 lignes minimum. Explique le concept en profondeur, son origine, pourquoi c'est crucial dans le métier de commercial tech, comment ça s'utilise concrètement]###[Exemple de phrase en anglais utilisée en contexte professionnel réel]###[Exemple concret d'usage en entreprise tech : scénario réaliste de 3-4 lignes]`);
 
-===SECTION:tech===
-Contenu.
-===SECTION:vocab===
-term | noun | définition | "exemple usage"
-===END===`;
+  if(topics.includes('citation'))sectionInstructions.push(`===SECTION:citation===
+UNE citation inspirante liée au business, au leadership, à la tech ou à la vente. Format :
+QUOTE###[La citation en langue originale]###[Auteur, titre/entreprise]###[Pourquoi cette citation est puissante : 3-4 lignes d'analyse concrète]`);
+
+  if(topics.includes('horoscope'))sectionInstructions.push(`===SECTION:horoscope===
+Horoscope du jour pour le signe Vierge. Ton direct et concret, pas vague. 4-5 lignes max.`);
+
+  if(topics.includes('culture'))sectionInstructions.push(`===SECTION:culture===
+UN fait de culture générale surprenant et important à savoir. Peut être lié à l'histoire, la science, l'économie, la géographie, ou l'actualité récente. Quelque chose que peu de gens savent mais que tout le monde devrait savoir. 6 à 10 lignes avec contexte et pourquoi c'est important à connaître.`);
+
+  const prompt=`Tu es le rédacteur d'un brief matinal de haute qualité pour Théo, 21 ans, étudiant Grande École (Neoma Business School), passionné de tech, de business et de vente.
+
+Date du jour : ${dateStr}${extra}
+
+INSTRUCTIONS GLOBALES :
+- Tu DOIS utiliser Google Search pour trouver de vrais articles récents (cette semaine). Pas de contenu inventé.
+- Ton : direct, dense, intelligent. Aucune formule creuse. Des faits, des chiffres, des noms.
+- Langue : français, sauf pour le vocab tech (anglais).
+- Le contenu doit être LONG et RICHE. Théo veut passer 15 minutes à lire. Ne résume pas trop.
+- Respecte EXACTEMENT les formats demandés pour chaque section — l'appli les parse automatiquement.
+
+${sectionInstructions.join('\n\n')}
+
+===END===
+
+IMPORTANT : Respecte exactement les séparateurs ### et les marqueurs ARTICLE, TERM, QUOTE. Ne mets pas de sauts de ligne à l'intérieur d'une ligne ARTICLE ou TERM.`;
 
   try{
     const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
@@ -264,7 +288,7 @@ term | noun | définition | "exemple usage"
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         contents:[{parts:[{text:prompt}]}],
-        generationConfig:{temperature:0.7,maxOutputTokens:2048},
+        generationConfig:{temperature:0.7,maxOutputTokens:8192},
         tools:[{google_search:{}}]
       })
     });
@@ -282,24 +306,95 @@ term | noun | définition | "exemple usage"
 }
 
 function renderBrief(text){
-  const meta={tech:{icon:'⚡',name:'Tech & IA'},monde:{icon:'🌍',name:'News Monde'},vocab:{icon:'🔤',name:'Vocab Tech'},france:{icon:'🇫🇷',name:'News France'},citation:{icon:'💬',name:'Citation'}};
+  const meta={
+    tech:{icon:'⚡',name:'Tech & IA'},
+    monde:{icon:'🌍',name:'News Monde'},
+    france:{icon:'🇫🇷',name:'News France'},
+    vocab:{icon:'🔤',name:'Vocab Commercial Tech'},
+    citation:{icon:'💬',name:'Citation du jour'},
+    horoscope:{icon:'♍',name:'Horoscope Vierge'},
+    culture:{icon:'🧠',name:'Culture Générale'}
+  };
   const sections={};
   const re=/===SECTION:(\w+)===([\s\S]*?)(?====SECTION:|===END===|$)/g;
   let m;
   while((m=re.exec(text))!==null)sections[m[1].toLowerCase()]=m[2].trim();
   briefText='';let html='';
+
   for(const[key,info]of Object.entries(meta)){
     const content=sections[key];
     if(!content)continue;
+    briefText+=`${info.name}. `;
+
     if(key==='vocab'){
-      const p=content.split('|').map(s=>s.trim());
-      const word=p[0]||'',type=p[1]||'',def=p[2]||content,ex=p[3]||'';
-      briefText+=`Vocabulaire. ${word}. ${def}. ${ex}. `;
-      html+=`<div class="brief-section"><div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div><div class="section-body"><div class="vocab-word">${word}</div><div class="vocab-type">${type}</div><div class="vocab-def">${def}</div>${ex?`<div class="vocab-example">"${ex}"</div>`:''}</div></div>`;
-    }else{
+      // TERM###word###cat###def###example###scenario
+      const line=content.split('\n').find(l=>l.startsWith('TERM###'))||content;
+      const p=line.replace('TERM###','').split('###').map(s=>s.trim());
+      const word=p[0]||'',cat=p[1]||'',def=p[2]||content,ex=p[3]||'',scenario=p[4]||'';
+      briefText+=`${word}. ${def} `;
+      html+=`<div class="brief-section">
+        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
+        <div class="section-body">
+          <div class="vocab-word">${word}</div>
+          <div class="vocab-type">${cat}</div>
+          <div class="vocab-def">${def.replace(/\n/g,'<br>')}</div>
+          ${ex?`<div class="vocab-example">"${ex}"</div>`:''}
+          ${scenario?`<div style="margin-top:12px;padding:12px;background:rgba(200,169,110,0.06);border-radius:8px;font-size:13px;line-height:1.7;color:var(--text)">${scenario.replace(/\n/g,'<br>')}</div>`:''}
+        </div></div>`;
+
+    } else if(key==='citation'){
+      // QUOTE###quote###author###analysis
+      const line=content.split('\n').find(l=>l.startsWith('QUOTE###'))||content;
+      const p=line.replace('QUOTE###','').split('###').map(s=>s.trim());
+      const quote=p[0]||content,author=p[1]||'',analysis=p[2]||'';
+      briefText+=`${quote} — ${author}. `;
+      html+=`<div class="brief-section">
+        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
+        <div class="section-body">
+          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;line-height:1.4;margin-bottom:10px;color:var(--accent)">"${quote}"</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.05em">— ${author}</div>
+          ${analysis?`<div style="font-size:13px;line-height:1.7;color:var(--muted)">${analysis.replace(/\n/g,'<br>')}</div>`:''}
+        </div></div>`;
+
+    } else if(key==='horoscope'||key==='culture'){
       const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
-      briefText+=`${info.name}. ${content.replace(/\n/g,' ')} `;
-      html+=`<div class="brief-section"><div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div><div class="section-body">${paras}</div></div>`;
+      briefText+=content.replace(/\n/g,' ')+' ';
+      html+=`<div class="brief-section">
+        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
+        <div class="section-body">${paras}</div></div>`;
+
+    } else {
+      // News sections — parse ARTICLE lines
+      const lines=content.split('\n');
+      let articlesHtml='';
+      let hasArticles=false;
+      for(const line of lines){
+        if(!line.startsWith('ARTICLE###'))continue;
+        hasArticles=true;
+        const p=line.replace('ARTICLE###','').split('###').map(s=>s.trim());
+        const title=p[0]||'Article',source=p[1]||'',url=p[2]||'',summary=p[3]||'';
+        briefText+=`${title}. ${summary} `;
+        const isValidUrl=url.startsWith('http');
+        articlesHtml+=`<div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
+            <div style="font-size:15px;font-weight:600;line-height:1.35;flex:1">${title}</div>
+            ${isValidUrl?`<a href="${url}" target="_blank" rel="noopener" style="flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:4px 8px;text-decoration:none;white-space:nowrap">Lire →</a>`:''}
+          </div>
+          ${source?`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">${source}</div>`:''}
+          <div style="font-size:13px;line-height:1.75;color:rgba(232,230,224,0.85)">${summary.replace(/\n/g,'<br>')}</div>
+        </div>`;
+      }
+      // Fallback if no ARTICLE format found
+      if(!hasArticles){
+        const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
+        briefText+=content.replace(/\n/g,' ')+' ';
+        articlesHtml=`<div class="section-body">${paras}</div>`;
+        html+=`<div class="brief-section"><div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>${articlesHtml}</div>`;
+        continue;
+      }
+      html+=`<div class="brief-section">
+        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
+        <div style="padding:16px">${articlesHtml}</div></div>`;
     }
   }
   document.getElementById('briefSections').innerHTML=html||'<div style="padding:16px;color:var(--muted)">Format inattendu — réessaie.</div>';
