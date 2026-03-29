@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#090910">
+<title>THÉO — Brief du jour</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#090910;--surface:#0f0f1a;--s2:#14141f;--border:rgba(255,255,255,0.07);--accent:#c8a96e;--text:#e8e6e0;--muted:#6b6878;--green:#4ecdc4;--red:#ff6b6b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+.header{padding:24px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(9,9,16,.93);backdrop-filter:blur(20px);z-index:100}
+.logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:900;letter-spacing:.08em;color:var(--accent)}
+.date-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface)}
+.tab{flex:1;padding:13px 6px;text-align:center;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Mono',monospace;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.page{display:none;padding:22px 20px;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Playfair Display',serif;font-size:27px;font-weight:700;margin-bottom:6px;line-height:1.1}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:26px;line-height:1.5}
+.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:block}
+.fixed-topics{display:flex;flex-direction:column;gap:7px;margin-bottom:22px}
+.topic-pill{display:flex;align-items:center;gap:11px;padding:13px 15px;background:var(--s2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;user-select:none}
+.topic-pill.selected{border-color:var(--accent);background:rgba(200,169,110,.07)}
+.check{width:17px;height:17px;border:1.5px solid var(--muted);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:10px}
+.topic-pill.selected .check{background:var(--accent);border-color:var(--accent);color:#090910}
+.topic-name{font-size:14px;font-weight:500}
+.topic-desc{font-size:11px;color:var(--muted);margin-left:auto}
+textarea{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;min-height:95px;line-height:1.6;transition:border-color .2s;margin-bottom:22px}
+textarea:focus{border-color:rgba(200,169,110,.4)}
+textarea::placeholder{color:var(--muted)}
+.btn-primary{width:100%;padding:15px;background:var(--accent);color:#090910;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-primary:hover{background:#d9bc80}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.brief-header{margin-bottom:26px}
+.brief-date{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}
+.brief-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;line-height:1.05}
+.audio-bar{display:flex;align-items:center;gap:11px;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:26px}
+.audio-btn{width:36px;height:36px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .2s;color:#090910}
+.audio-btn:hover{transform:scale(1.05)}
+.audio-info{flex:1}
+.audio-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.audio-track{font-size:13px;font-weight:500}
+.audio-speed{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;flex-shrink:0}
+.brief-section{margin-bottom:18px;border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.section-header{display:flex;align-items:center;gap:9px;padding:13px 16px;background:var(--s2);border-bottom:1px solid var(--border)}
+.section-icon{font-size:15px;width:26px;text-align:center}
+.section-name{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.section-body{padding:16px;font-size:14px;line-height:1.75;color:var(--text)}
+.section-body p{margin-bottom:10px}
+.section-body p:last-child{margin-bottom:0}
+.vocab-word{font-family:'Playfair Display',serif;font-size:25px;font-weight:700;color:var(--accent);margin-bottom:3px}
+.vocab-type{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:11px}
+.vocab-def{font-size:14px;line-height:1.7;margin-bottom:11px}
+.vocab-example{font-size:13px;color:var(--muted);font-style:italic;border-left:2px solid var(--accent);padding-left:11px}
+.empty-state{text-align:center;padding:55px 22px}
+.empty-icon{font-size:38px;margin-bottom:14px}
+.empty-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:7px}
+.empty-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.loading-state{text-align:center;padding:55px 22px}
+.spinner{width:34px;height:34px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.1em;animation:pulse 1.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:14px}
+.setting-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.toggle{width:42px;height:25px;background:var(--s2);border:1px solid var(--border);border-radius:13px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle::after{content:'';position:absolute;width:17px;height:17px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s}
+.toggle.on::after{transform:translateX(17px)}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:6px}
+.status-dot.ok{background:var(--green);animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.api-key-input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;margin-top:9px;letter-spacing:.05em}
+.api-key-input:focus{border-color:rgba(200,169,110,.4)}
+.btn-save{margin-top:9px;padding:9px 18px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.btn-save:hover{background:rgba(200,169,110,.1)}
+.notice{font-size:12px;color:var(--muted);line-height:1.7;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-top:11px}
+.notice a{color:var(--accent);text-decoration:none}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.step{display:flex;gap:11px;align-items:flex-start;font-size:13px;line-height:1.5}
+.step-num{font-family:'DM Mono',monospace;font-size:10px;background:var(--accent);color:#090910;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-weight:500}
+.bottom-space{height:28px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">THÉO</div>
+  <div class="date-tag" id="headerDate"></div>
+</div>
+<div class="tabs">
+  <button class="tab active" id="tab-morning" onclick="switchTab('morning',this)">☀ Matin</button>
+  <button class="tab" id="tab-evening" onclick="switchTab('evening',this)">🌙 Soir</button>
+  <button class="tab" id="tab-settings" onclick="switchTab('settings',this)">⚙ Config</button>
+</div>
+
+<div class="page active" id="page-morning">
+  <div id="morning-empty" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <div class="empty-title">Pas encore de brief</div>
+    <div class="empty-sub">Configure ta clé API dans Config,<br>puis prépare ton brief ce soir.</div>
+    <br>
+    <button class="btn-primary" style="max-width:220px;margin:0 auto" onclick="switchTab('evening',document.getElementById('tab-evening'))">Préparer ce soir →</button>
+  </div>
+  <div id="morning-loading" class="loading-state" style="display:none">
+    <div class="spinner"></div>
+    <div class="loading-text">Génération en cours...</div>
+  </div>
+  <div id="morning-content" style="display:none">
+    <div class="brief-header">
+      <div class="brief-date" id="briefDate"></div>
+      <div class="brief-title">Ton brief<br>du jour.</div>
+    </div>
+    <div class="audio-bar">
+      <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">▶</button>
+      <div class="audio-info">
+        <div class="audio-label">Lecture audio</div>
+        <div class="audio-track" id="audioTrack">Brief prêt</div>
+      </div>
+      <div class="audio-speed" id="speedBtn" onclick="cycleSpeed()">1×</div>
+    </div>
+    <div id="briefSections"></div>
+    <div class="bottom-space"></div>
+  </div>
+</div>
+
+<div class="page" id="page-evening">
+  <div class="section-title">Ce soir,<br>prépare demain.</div>
+  <div class="section-sub">Sélectionne tes rubriques et ajoute tes sujets du moment.</div>
+  <span class="label">Rubriques fixes</span>
+  <div class="fixed-topics">
+    <div class="topic-pill selected" data-topic="tech" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Tech & IA</div><div class="topic-desc">Quotidien</div></div>
+    <div class="topic-pill selected" data-topic="monde" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Monde</div><div class="topic-desc">Quotidien</div></div>
+    <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Tech du jour</div><div class="topic-desc">Anglais</div></div>
+    <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">Optionnel</div></div>
+    <div class="topic-pill" data-topic="citation" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Citation du jour</div><div class="topic-desc">Optionnel</div></div>
+  </div>
+  <span class="label">Sujets libres (optionnel)</span>
+  <textarea id="freeTopics" placeholder="Ex: Comment fonctionne un LLM ? Quelles actus sur OpenAI ?"></textarea>
+  <button class="btn-primary" id="generateBtn" onclick="generateBrief()">Générer mon brief →</button>
+  <div class="bottom-space"></div>
+</div>
+
+<div class="page" id="page-settings">
+  <div class="section-title">Configuration</div>
+  <div class="section-sub">Clé API Google Gemini — gratuite, sans carte bancaire.</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div>Va sur <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></div></div>
+    <div class="step"><div class="step-num">2</div><div>Connecte-toi avec ton compte Google</div></div>
+    <div class="step"><div class="step-num">3</div><div>Clique sur <strong>"Create API Key"</strong></div></div>
+    <div class="step"><div class="step-num">4</div><div>Copie-colle la clé ci-dessous</div></div>
+  </div>
+  <span class="label" style="margin-top:18px">Ta clé API Gemini</span>
+  <input type="password" class="api-key-input" id="apiKeyInput" placeholder="AIza...">
+  <button class="btn-save" onclick="saveApiKey()">Enregistrer</button>
+  <div class="notice">
+    <span class="status-dot" id="statusDot"></span><span id="statusText">Aucune clé configurée</span><br><br>
+    Stockée localement dans ton navigateur. Gratuit jusqu'à 1 500 requêtes/jour.
+  </div>
+  <div style="margin-top:26px">
+    <div class="setting-row">
+      <div><div class="setting-label">Lecture auto</div><div class="setting-desc">Lance l'audio dès que le brief est prêt</div></div>
+      <div class="toggle" id="autoPlayToggle" onclick="this.classList.toggle('on')"></div>
+    </div>
+  </div>
+  <div class="bottom-space"></div>
+</div>
+
+<script>
+let currentSpeed=1,isSpeaking=false,briefText='';
+const speeds=[1,1.25,1.5,2];
+
+function initDate(){
+  const now=new Date();
+  const s=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  document.getElementById('headerDate').textContent=s;
+  document.getElementById('briefDate').textContent=s;
+}
+
+function switchTab(tab,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  el.classList.add('active');
+}
+
+function toggleTopic(el){
+  el.classList.toggle('selected');
+  el.querySelector('.check').textContent=el.classList.contains('selected')?'✓':'';
+}
+
+function saveApiKey(){
+  const key=document.getElementById('apiKeyInput').value.trim();
+  if(!key)return;
+  localStorage.setItem('theo_gemini_key',key);
+  updateStatus(true);
+}
+
+function updateStatus(ok){
+  document.getElementById('statusDot').className=ok?'status-dot ok':'status-dot';
+  document.getElementById('statusText').textContent=ok?'Clé API configurée ✓':'Aucune clé configurée';
+}
+
+function loadApiKey(){
+  const key=localStorage.getItem('theo_gemini_key');
+  if(key){document.getElementById('apiKeyInput').value=key;updateStatus(true);}
+}
+
+async function generateBrief(){
+  const apiKey=localStorage.getItem('theo_gemini_key');
+  if(!apiKey){alert('Configure ta clé API dans Config.');switchTab('settings',document.getElementById('tab-settings'));return;}
+  const topics=[...document.querySelectorAll('.topic-pill.selected')].map(p=>p.dataset.topic);
+  if(!topics.length){alert('Sélectionne au moins une rubrique.');return;}
+  const freeText=document.getElementById('freeTopics').value.trim();
+  document.getElementById('generateBtn').disabled=true;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-morning').classList.add('active');
+  document.getElementById('tab-morning').classList.add('active');
+  document.getElementById('morning-empty').style.display='none';
+  document.getElementById('morning-loading').style.display='block';
+  document.getElementById('morning-content').style.display='none';
+
+  const labels={
+    tech:'News Tech & IA (actualités IA, startups, big tech)',
+    monde:'News Monde (3 actualités internationales majeures)',
+    vocab:'Vocabulaire Tech (1 terme anglais clé avec définition et exemple)',
+    france:'News France (2 actualités françaises importantes)',
+    citation:'Citation inspirante (business/philosophie/tech)'
+  };
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const selectedLabels=topics.map(t=>labels[t]).join('\n- ');
+  const extra=freeText?`\n\nSujets supplémentaires : ${freeText}`:'';
+
+  const prompt=`Tu es rédacteur d'un brief matinal pour Théo, 21 ans, étudiant Neoma Business School, stage chef de projet digital, passionné tech et business.
+
+Date : ${dateStr}
+
+Rubriques :
+- ${selectedLabels}${extra}
+
+RÈGLES STRICTES :
+- Français, sauf vocab (anglais)
+- Ton direct, dense, concret — acteurs nommés, chiffres si dispos
+- Vocab : mot | catégorie | définition française | exemple pro anglais
+- Format OBLIGATOIRE avec clés exactes (tech, monde, vocab, france, citation) :
+
+===SECTION:tech===
+Contenu.
+===SECTION:vocab===
+term | noun | définition | "exemple usage"
+===END===`;
+
+  try{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{temperature:0.7,maxOutputTokens:2048},
+        tools:[{google_search:{}}]
+      })
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error?.message||'Erreur API');
+    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if(!text)throw new Error('Réponse vide');
+    renderBrief(text);
+  }catch(err){
+    document.getElementById('morning-loading').style.display='none';
+    document.getElementById('morning-empty').style.display='block';
+    document.getElementById('morning-empty').innerHTML=`<div class="empty-icon">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">${err.message}<br><br>Vérifie ta clé dans Config.</div>`;
+  }
+  document.getElementById('generateBtn').disabled=false;
+}
+
+function renderBrief(text){
+  const meta={tech:{icon:'⚡',name:'Tech & IA'},monde:{icon:'🌍',name:'News Monde'},vocab:{icon:'🔤',name:'Vocab Tech'},france:{icon:'🇫🇷',name:'News France'},citation:{icon:'💬',name:'Citation'}};
+  const sections={};
+  const re=/===SECTION:(\w+)===([\s\S]*?)(?====SECTION:|===END===|$)/g;
+  let m;
+  while((m=re.exec(text))!==null)sections[m[1].toLowerCase()]=m[2].trim();
+  briefText='';let html='';
+  for(const[key,info]of Object.entries(meta)){
+    const content=sections[key];
+    if(!content)continue;
+    if(key==='vocab'){
+      const p=content.split('|').map(s=>s.trim());
+      const word=p[0]||'',type=p[1]||'',def=p[2]||content,ex=p[3]||'';
+      briefText+=`Vocabulaire. ${word}. ${def}. ${ex}. `;
+      html+=`<div class="brief-section"><div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div><div class="section-body"><div class="vocab-word">${word}</div><div class="vocab-type">${type}</div><div class="vocab-def">${def}</div>${ex?`<div class="vocab-example">"${ex}"</div>`:''}</div></div>`;
+    }else{
+      const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
+      briefText+=`${info.name}. ${content.replace(/\n/g,' ')} `;
+      html+=`<div class="brief-section"><div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div><div class="section-body">${paras}</div></div>`;
+    }
+  }
+  document.getElementById('briefSections').innerHTML=html||'<div style="padding:16px;color:var(--muted)">Format inattendu — réessaie.</div>';
+  document.getElementById('morning-loading').style.display='none';
+  document.getElementById('morning-content').style.display='block';
+  if(document.getElementById('autoPlayToggle').classList.contains('on'))setTimeout(startAudio,600);
+}
+
+function toggleAudio(){isSpeaking?stopAudio():startAudio();}
+
+function startAudio(){
+  if(!briefText)return;
+  stopAudio();
+  const utt=new SpeechSynthesisUtterance(briefText);
+  utt.lang='fr-FR';utt.rate=currentSpeed;
+  utt.onend=()=>{isSpeaking=false;document.getElementById('audioBtn').textContent='▶';document.getElementById('audioTrack').textContent='Brief terminé';};
+  window.speechSynthesis.speak(utt);
+  isSpeaking=true;
+  document.getElementById('audioBtn').textContent='⏸';
+  document.getElementById('audioTrack').textContent='Lecture en cours...';
+}
+
+function stopAudio(){
+  window.speechSynthesis.cancel();isSpeaking=false;
+  document.getElementById('audioBtn').textContent='▶';
+  document.getElementById('audioTrack').textContent='Brief prêt';
+}
+
+function cycleSpeed(){
+  const i=speeds.indexOf(currentSpeed);
+  currentSpeed=speeds[(i+1)%speeds.length];
+  document.getElementById('speedBtn').textContent=currentSpeed+'×';
+  if(isSpeaking){stopAudio();startAudio();}
+}
+
+initDate();loadApiKey();
+</script>
+</body>
+</html>
