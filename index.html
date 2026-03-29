@@ -304,7 +304,7 @@ ${sectionInstructions.join('\n\n')}
 IMPORTANT : Respecte exactement les séparateurs ### et les marqueurs ARTICLE, TERM, QUOTE. Ne mets pas de sauts de ligne à l'intérieur d'une ligne ARTICLE ou TERM.`;
 
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -314,7 +314,10 @@ IMPORTANT : Respecte exactement les séparateurs ### et les marqueurs ARTICLE, T
       })
     });
     const data=await res.json();
-    if(!res.ok)throw new Error(data.error?.message||'Erreur API');
+    if(!res.ok){
+      const errMsg=data.error?.message||JSON.stringify(data.error)||'Erreur inconnue';
+      throw new Error(`API ${res.status}: ${errMsg}`);
+    }
     const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
     if(!text)throw new Error('Réponse vide');
     // Sauvegarde dans le cache du jour
