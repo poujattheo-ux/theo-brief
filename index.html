@@ -374,11 +374,11 @@ function renderBrief(text){
         const p=line.replace('ARTICLE###','').split('###').map(s=>s.trim());
         const title=p[0]||'Article',source=p[1]||'',url=p[2]||'',summary=p[3]||'';
         briefText+=`${title}. ${summary} `;
-        const isValidUrl=url.startsWith('http');
+        const searchUrl=`https://www.google.com/search?q=${encodeURIComponent(title+(source?' '+source:''))}`;
         articlesHtml+=`<div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
             <div style="font-size:15px;font-weight:600;line-height:1.35;flex:1">${title}</div>
-            ${isValidUrl?`<a href="${url}" target="_blank" rel="noopener" style="flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:4px 8px;text-decoration:none;white-space:nowrap">Lire →</a>`:''}
+            <a href="${searchUrl}" target="_blank" rel="noopener" style="flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:4px 8px;text-decoration:none;white-space:nowrap">Lire →</a>
           </div>
           ${source?`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">${source}</div>`:''}
           <div style="font-size:13px;line-height:1.75;color:rgba(232,230,224,0.85)">${summary.replace(/\n/g,'<br>')}</div>
