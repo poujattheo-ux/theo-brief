@@ -111,7 +111,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .quote-author{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:13px;letter-spacing:.05em}
 .quote-analysis{font-size:13px;line-height:1.7;color:var(--muted2)}
 
-/* HOROSCOPE / CULTURE / LIBRE */
+/* HOROSCOPE / CULTURE / LIBRE / PERSONNALITE */
 .simple-content p{margin-bottom:10px;font-size:14px;line-height:1.75}
 .simple-content p:last-child{margin-bottom:0}
 
@@ -258,6 +258,7 @@ textarea::placeholder{color:var(--muted)}
       <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Commercial Tech</div><div class="topic-desc">Sales</div></div>
       <div class="topic-pill selected" data-topic="sport" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Sport</div><div class="topic-desc">Strict/Analyse</div></div>
       <div class="topic-pill selected" data-topic="culture" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Culture Générale</div><div class="topic-desc">Quotidien</div></div>
+      <div class="topic-pill selected" data-topic="personnalite" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Figure Historique</div><div class="topic-desc">Héritage</div></div>
       <div class="topic-pill" data-topic="citation" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Citation du jour</div><div class="topic-desc">Optionnel</div></div>
       <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Détaillé</div></div>
     </div>
@@ -321,15 +322,16 @@ const D_J14 = getPastDate(14);
 
 // Section metadata — display order
 const SECTION_META={
-  tech:    {icon:'⚡',name:'Tech & IA'},
-  monde:   {icon:'🌍',name:'News Monde'},
-  france:  {icon:'🇫🇷',name:'News France'},
-  vocab:   {icon:'🔤',name:'Vocab Sales Tech'},
-  sport:   {icon:'⚽',name:'Sport'},
-  culture: {icon:'🧠',name:'Culture Générale'},
-  citation:{icon:'💬',name:'Citation'},
-  horoscope:{icon:'♍',name:'Horoscope Vierge'},
-  libre:   {icon:'🎯',name:'Sujet Libre'}
+  tech:         {icon:'⚡',name:'Tech & IA'},
+  monde:        {icon:'🌍',name:'News Monde'},
+  france:       {icon:'🇫🇷',name:'News France'},
+  vocab:        {icon:'🔤',name:'Vocab Sales Tech'},
+  sport:        {icon:'⚽',name:'Sport'},
+  culture:      {icon:'🧠',name:'Culture Générale'},
+  personnalite: {icon:'🏛️',name:'Figure Historique'},
+  citation:     {icon:'💬',name:'Citation'},
+  horoscope:    {icon:'♍',name:'Horoscope Vierge'},
+  libre:        {icon:'🎯',name:'Sujet Libre'}
 };
 
 // ─── INIT ─────────────────────────────────────────────────
@@ -371,7 +373,6 @@ function init(){
   if(cached){
     try{
       const sections=JSON.parse(cached);
-      // Ensure the UI recognizes the cache state properly on startup
       renderBriefFromSections(sections, Object.keys(sections));
     }catch(e){}
   }
@@ -498,11 +499,9 @@ async function generateBrief(){
   const freeText=document.getElementById('freeTopics').value.trim();
   const hasFreeText = freeText.length > 0;
   
-  // LOGIQUE DE CACHE CORRIGÉE : On ne demande QUE ce qui manque, on n'écrase pas le reste.
   const missingSections=topics.filter(t=>!cachedSections[t]);
   const sectionsToGenerate = [...missingSections];
   
-  // On ajoute le sujet libre comme une section indépendante s'il est rempli
   if (hasFreeText) sectionsToGenerate.push('libre');
 
   let activeTopics = [...topics];
@@ -564,9 +563,16 @@ ARTICLE###[Titre clair]###[Source]###[Résumé riche 10 lignes : enjeux financie
   if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`===SECTION:culture===
 UN fait de culture générale vérifiable, précis et peu connu. Histoire, économie ou lié à l'actualité. 10 lignes détaillées.`);
 
+  if(sectionsToGenerate.includes('personnalite'))sectionPrompts.push(`===SECTION:personnalite===
+Choisis une personnalité historique majeure (Monde ou France) issue de n'importe quel domaine (science, philosophie, art, histoire militaire, politique, littérature, invention). 
+Rédige un portrait impactant et analytique de 10 à 15 lignes structuré ainsi :
+1. Qui était-elle et son contexte historique.
+2. Son accomplissement majeur.
+3. L'impact concret, mesurable et direct qu'elle a laissé sur notre monde ou notre pays aujourd'hui (qu'avons-nous aujourd'hui grâce à elle concrètement ?).`);
+
   if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`===SECTION:citation===
-UNE citation forte vérifiée (vérifie via Search). Business, tech ou vente.
-QUOTE###[Citation]###[Prénom Nom, rôle]###[Analyse stratégique 4-5 lignes]`);
+UNE citation forte vérifiée (vérifie via Search). Généraliste, philosophique, historique, littéraire ou scientifique. Interdiction de faire un focus exclusif sur le business ou la tech.
+QUOTE###[Citation]###[Prénom Nom, rôle/époque]###[Analyse 4-5 lignes : ce qu'elle nous apprend sur la nature humaine ou la société]`);
 
   if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`===SECTION:horoscope===
 Utilise Google Search pour trouver l'horoscope Vierge du jour (${dateStr}). Utilise TOUJOURS une seule source fiable (ex: "RTL"). N'invente rien.
@@ -605,11 +611,9 @@ ${sectionPrompts.join('\n\n')}
     if(!text)throw new Error('Réponse vide');
 
     const newSections=parseSections(text);
-    // Fusion du cache (on conserve intactes les rubriques déjà générées le matin)
     const allSections={...cachedSections,...newSections};
     localStorage.setItem(CACHE_KEY,JSON.stringify(allSections));
     
-    // Nettoyage de l'input texte si réussi
     if (hasFreeText) document.getElementById('freeTopics').value = '';
     
     renderBriefFromSections(allSections, activeTopics);
@@ -648,7 +652,6 @@ function renderBriefFromSections(sections, visibleTopics){
     const content=sections[key];
     if(!content)continue;
     
-    // Forcer l'affichage de "libre" s'il est présent dans le cache, même s'il n'est pas dans visibleTopics (car c'est un input dynamique)
     const isVisible = visibleTopics.includes(key) || key === 'libre';
     const displayStyle=isVisible?'':'none';
     if(isVisible) delay+=60;
@@ -681,7 +684,7 @@ function renderBriefFromSections(sections, visibleTopics){
           ${analysis?`<div class="quote-analysis">${analysis.replace(/\n/g,'<br>')}</div>`:''}
         </div></div>`;
 
-    }else if(key==='horoscope'||key==='culture'||key==='libre'){
+    }else if(key==='horoscope'||key==='culture'||key==='libre'||key==='personnalite'){
       const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
       briefText+=`${meta.name}. ${content.replace(/\n/g,' ')} `;
       html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
