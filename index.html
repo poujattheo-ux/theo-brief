@@ -2,70 +2,154 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#090910">
-<title>THÉO — Brief du jour</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07070e">
+<title>THÉO</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#090910;--surface:#0f0f1a;--s2:#14141f;--border:rgba(255,255,255,0.07);--accent:#c8a96e;--text:#e8e6e0;--muted:#6b6878;--green:#4ecdc4;--red:#ff6b6b}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
-.header{padding:24px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(9,9,16,.93);backdrop-filter:blur(20px);z-index:100}
-.logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:900;letter-spacing:.08em;color:var(--accent)}
-.date-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+:root{
+  --bg:#07070e;--surface:#0d0d18;--s2:#121220;--s3:#1a1a2e;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --accent:#c8a96e;--accent-dim:rgba(200,169,110,0.12);
+  --text:#e4e2dc;--muted:#5a5768;--muted2:#8a8798;
+  --green:#3ecfb2;--red:#e05c6a;--blue:#6b9fff;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;overscroll-behavior:none}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .6s ease,transform .6s ease}
+#splash.out{opacity:0;transform:scale(1.03);pointer-events:none}
+.splash-logo{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:var(--accent);letter-spacing:.12em;animation:splashIn .8s ease forwards;opacity:0}
+.splash-line{width:40px;height:1px;background:var(--accent);opacity:.4;animation:splashIn .8s .2s ease forwards;opacity:0}
+.splash-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:.2em;text-transform:uppercase;animation:splashIn .8s .35s ease forwards;opacity:0}
+.splash-streak{font-size:13px;color:var(--muted2);animation:splashIn .8s .5s ease forwards;opacity:0;letter-spacing:.05em}
+@keyframes splashIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* LAYOUT */
+.app{display:flex;flex-direction:column;min-height:100vh;opacity:0;transition:opacity .4s ease}
+.app.visible{opacity:1}
+
+/* HEADER */
+.header{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(7,7,14,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:100}
+.header-left{display:flex;flex-direction:column;gap:3px}
+.logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;letter-spacing:.1em;color:var(--accent)}
+.header-meta{display:flex;align-items:center;gap:8px}
+.streak-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.06em;opacity:.7}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.date-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.weather-widget{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted2)}
+.weather-temp{font-family:'DM Mono',monospace;font-size:11px;color:var(--text)}
+
+/* TABS */
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface)}
-.tab{flex:1;padding:13px 6px;text-align:center;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Mono',monospace;border-bottom:2px solid transparent;transition:all .2s}
+.tab{flex:1;padding:12px 6px;text-align:center;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Mono',monospace;border-bottom:2px solid transparent;transition:all .25s}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.page{display:none;padding:22px 20px;animation:fadeIn .3s ease}
+
+/* PAGES */
+.page{display:none;padding:20px;animation:pageIn .3s ease;padding-bottom:40px}
 .page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.section-title{font-family:'Playfair Display',serif;font-size:27px;font-weight:700;margin-bottom:6px;line-height:1.1}
-.section-sub{font-size:13px;color:var(--muted);margin-bottom:26px;line-height:1.5}
+@keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* BRIEF HEADER */
+.brief-header{margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.brief-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;opacity:.8}
+.brief-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.brief-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;line-height:1;letter-spacing:-.01em}
+.brief-title em{font-style:italic;font-weight:400;color:var(--muted2)}
+.btn-refaire{padding:7px 11px;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:7px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.08em;transition:all .2s;flex-shrink:0}
+.btn-refaire:hover{border-color:var(--accent);color:var(--accent)}
+
+/* AUDIO BAR */
+.audio-bar{display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:22px}
+.audio-btn{width:34px;height:34px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:all .2s;color:#07070e;font-weight:bold}
+.audio-btn:active{transform:scale(.93)}
+.audio-info{flex:1;min-width:0}
+.audio-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.audio-track{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audio-speed{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 7px;cursor:pointer;flex-shrink:0;transition:all .2s}
+.audio-speed:hover{border-color:var(--accent);color:var(--accent)}
+
+/* SECTION FILTER */
+.section-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.filter-chip{font-family:'DM Mono',monospace;font-size:10px;padding:5px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.06em;text-transform:uppercase;user-select:none}
+.filter-chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+/* BRIEF SECTIONS */
+.brief-section{margin-bottom:14px;border:1px solid var(--border);border-radius:14px;overflow:hidden;animation:cardIn .4s ease forwards;opacity:0}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-header{display:flex;align-items:center;gap:9px;padding:12px 16px;background:var(--s2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.section-icon{font-size:14px;width:24px;text-align:center;flex-shrink:0}
+.section-name{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:500;flex:1}
+.section-toggle{font-size:11px;color:var(--muted);transition:transform .2s}
+.section-toggle.open{transform:rotate(180deg)}
+.section-body{padding:16px;font-size:14px;line-height:1.75;color:var(--text)}
+.section-body.collapsed{display:none}
+
+/* ARTICLES */
+.article-item{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.article-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.article-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:7px}
+.article-title{font-size:15px;font-weight:600;line-height:1.35;flex:1}
+.article-link{flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);border:1px solid rgba(200,169,110,.35);border-radius:5px;padding:4px 9px;text-decoration:none;white-space:nowrap;transition:all .2s}
+.article-link:hover{background:var(--accent-dim)}
+.article-source{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:9px;letter-spacing:.06em;text-transform:uppercase}
+.article-summary{font-size:13px;line-height:1.78;color:rgba(228,226,220,.82)}
+
+/* VOCAB */
+.vocab-word{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--accent);margin-bottom:2px;line-height:1}
+.vocab-type{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:13px;letter-spacing:.05em}
+.vocab-def{font-size:14px;line-height:1.75;margin-bottom:13px}
+.vocab-example{font-size:13px;color:var(--muted2);font-style:italic;border-left:2px solid var(--accent);padding-left:12px;margin-bottom:13px;line-height:1.65}
+.vocab-scenario{padding:13px;background:var(--accent-dim);border-radius:8px;font-size:13px;line-height:1.7}
+
+/* QUOTE */
+.quote-text{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;line-height:1.45;color:var(--accent);margin-bottom:10px}
+.quote-author{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:13px;letter-spacing:.05em}
+.quote-analysis{font-size:13px;line-height:1.7;color:var(--muted2)}
+
+/* HOROSCOPE / CULTURE */
+.simple-content p{margin-bottom:10px;font-size:14px;line-height:1.75}
+.simple-content p:last-child{margin-bottom:0}
+
+/* EMPTY / LOADING */
+.empty-state{text-align:center;padding:60px 20px}
+.empty-icon{font-size:36px;margin-bottom:14px;opacity:.6}
+.empty-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:7px}
+.empty-sub{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:24px}
+.loading-state{text-align:center;padding:60px 20px}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;animation:pulse 1.4s ease infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+.loading-steps{margin-top:20px;display:flex;flex-direction:column;gap:6px}
+.loading-step{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;opacity:.4;transition:opacity .3s}
+.loading-step.done{opacity:1;color:var(--green)}
+.loading-step.active{opacity:1;animation:pulse 1.4s ease infinite}
+
+/* GENERATE PAGE */
+.gen-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:5px;line-height:1.1}
+.gen-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5}
 .label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:block}
-.fixed-topics{display:flex;flex-direction:column;gap:7px;margin-bottom:22px}
+.topics-grid{display:flex;flex-direction:column;gap:7px;margin-bottom:22px}
 .topic-pill{display:flex;align-items:center;gap:11px;padding:13px 15px;background:var(--s2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;user-select:none}
-.topic-pill.selected{border-color:var(--accent);background:rgba(200,169,110,.07)}
+.topic-pill.selected{border-color:var(--accent);background:var(--accent-dim)}
 .check{width:17px;height:17px;border:1.5px solid var(--muted);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:10px}
-.topic-pill.selected .check{background:var(--accent);border-color:var(--accent);color:#090910}
+.topic-pill.selected .check{background:var(--accent);border-color:var(--accent);color:#07070e}
 .topic-name{font-size:14px;font-weight:500}
 .topic-desc{font-size:11px;color:var(--muted);margin-left:auto}
-textarea{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;min-height:95px;line-height:1.6;transition:border-color .2s;margin-bottom:22px}
+textarea{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;min-height:90px;line-height:1.65;transition:border-color .2s;margin-bottom:20px}
 textarea:focus{border-color:rgba(200,169,110,.4)}
 textarea::placeholder{color:var(--muted)}
-.btn-primary{width:100%;padding:15px;background:var(--accent);color:#090910;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-primary{width:100%;padding:15px;background:var(--accent);color:#07070e;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
 .btn-primary:hover{background:#d9bc80}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed}
-.brief-header{margin-bottom:26px}
-.brief-date{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}
-.brief-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;line-height:1.05}
-.audio-bar{display:flex;align-items:center;gap:11px;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:26px}
-.audio-btn{width:36px;height:36px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .2s;color:#090910}
-.audio-btn:hover{transform:scale(1.05)}
-.audio-info{flex:1}
-.audio-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
-.audio-track{font-size:13px;font-weight:500}
-.audio-speed{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;flex-shrink:0}
-.brief-section{margin-bottom:18px;border:1px solid var(--border);border-radius:13px;overflow:hidden}
-.section-header{display:flex;align-items:center;gap:9px;padding:13px 16px;background:var(--s2);border-bottom:1px solid var(--border)}
-.section-icon{font-size:15px;width:26px;text-align:center}
-.section-name{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:500}
-.section-body{padding:16px;font-size:14px;line-height:1.75;color:var(--text)}
-.section-body p{margin-bottom:10px}
-.section-body p:last-child{margin-bottom:0}
-.vocab-word{font-family:'Playfair Display',serif;font-size:25px;font-weight:700;color:var(--accent);margin-bottom:3px}
-.vocab-type{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:11px}
-.vocab-def{font-size:14px;line-height:1.7;margin-bottom:11px}
-.vocab-example{font-size:13px;color:var(--muted);font-style:italic;border-left:2px solid var(--accent);padding-left:11px}
-.empty-state{text-align:center;padding:55px 22px}
-.empty-icon{font-size:38px;margin-bottom:14px}
-.empty-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:7px}
-.empty-sub{font-size:13px;color:var(--muted);line-height:1.6}
-.loading-state{text-align:center;padding:55px 22px}
-.spinner{width:34px;height:34px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.1em;animation:pulse 1.5s ease infinite}
-@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.cache-notice{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);letter-spacing:.06em;text-align:center;margin-top:10px;opacity:.8}
+
+/* CONFIG PAGE */
 .setting-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--border)}
 .setting-row:last-child{border-bottom:none}
 .setting-label{font-size:14px}
@@ -82,226 +166,421 @@ textarea::placeholder{color:var(--muted)}
 .btn-save{margin-top:9px;padding:9px 18px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;cursor:pointer;transition:all .2s}
 .btn-save:hover{background:rgba(200,169,110,.1)}
 .notice{font-size:12px;color:var(--muted);line-height:1.7;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-top:11px}
-.notice a{color:var(--accent);text-decoration:none}
 .steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
-.step{display:flex;gap:11px;align-items:flex-start;font-size:13px;line-height:1.5}
-.step-num{font-family:'DM Mono',monospace;font-size:10px;background:var(--accent);color:#090910;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-weight:500}
-.bottom-space{height:28px}
+.step{display:flex;gap:11px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--muted)}
+.step-num{font-family:'DM Mono',monospace;font-size:10px;background:var(--accent);color:#07070e;min-width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-weight:500}
 </style>
 </head>
 <body>
-<div class="header">
-  <div class="logo">THÉO</div>
-  <div class="date-tag" id="headerDate"></div>
-</div>
-<div class="tabs">
-  <button class="tab active" id="tab-morning" onclick="switchTab('morning',this)">☀ Matin</button>
-  <button class="tab" id="tab-evening" onclick="switchTab('evening',this)">🌙 Soir</button>
-  <button class="tab" id="tab-settings" onclick="switchTab('settings',this)">⚙ Config</button>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">THÉO</div>
+  <div class="splash-line"></div>
+  <div class="splash-date" id="splashDate"></div>
+  <div class="splash-streak" id="splashStreak"></div>
 </div>
 
-<div class="page active" id="page-morning">
-  <div id="morning-empty" class="empty-state">
-    <div class="empty-icon">📋</div>
-    <div class="empty-title">Pas encore de brief</div>
-    <div class="empty-sub">Configure ta clé API dans Config,<br>puis prépare ton brief ce soir.</div>
-    <br>
-    <button class="btn-primary" style="max-width:220px;margin:0 auto" onclick="switchTab('evening',document.getElementById('tab-evening'))">Préparer ce soir →</button>
-  </div>
-  <div id="morning-loading" class="loading-state" style="display:none">
-    <div class="spinner"></div>
-    <div class="loading-text">Génération en cours...</div>
-  </div>
-  <div id="morning-content" style="display:none">
-    <div class="brief-header">
-      <div class="brief-date" id="briefDate"></div>
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
-        <div class="brief-title">Ton brief<br>du jour.</div>
-        <button onclick="clearCacheAndRegenerate()" style="flex-shrink:0;padding:7px 12px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.08em;margin-bottom:4px">↺ Refaire</button>
+<!-- APP -->
+<div class="app" id="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">THÉO</div>
+      <div class="header-meta">
+        <div class="streak-badge" id="streakBadge"></div>
       </div>
     </div>
-    <div class="audio-bar">
-      <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">▶</button>
-      <div class="audio-info">
-        <div class="audio-label">Lecture audio</div>
-        <div class="audio-track" id="audioTrack">Brief prêt</div>
+    <div class="header-right">
+      <div class="date-tag" id="headerDate"></div>
+      <div class="weather-widget" id="weatherWidget" style="display:none">
+        <span id="weatherIcon"></span>
+        <span class="weather-temp" id="weatherTemp"></span>
+        <span style="font-size:11px;color:var(--muted)" id="weatherDesc"></span>
       </div>
-      <div class="audio-speed" id="speedBtn" onclick="cycleSpeed()">1×</div>
-    </div>
-    <div id="briefSections"></div>
-    <div class="bottom-space"></div>
-  </div>
-</div>
-
-<div class="page" id="page-evening">
-  <div class="section-title">Ce soir,<br>prépare demain.</div>
-  <div class="section-sub">Sélectionne tes rubriques et ajoute tes sujets du moment.</div>
-  <span class="label">Rubriques fixes</span>
-  <div class="fixed-topics">
-    <div class="topic-pill selected" data-topic="tech" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Tech & IA</div><div class="topic-desc">Quotidien</div></div>
-    <div class="topic-pill selected" data-topic="monde" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Monde</div><div class="topic-desc">Quotidien</div></div>
-    <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Tech du jour</div><div class="topic-desc">Anglais</div></div>
-    <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">Optionnel</div></div>
-    <div class="topic-pill" data-topic="citation" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Citation du jour</div><div class="topic-desc">Optionnel</div></div>
-    <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Optionnel</div></div>
-    <div class="topic-pill selected" data-topic="culture" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Culture générale</div><div class="topic-desc">Quotidien</div></div>
-  </div>
-  <span class="label">Sujets libres (optionnel)</span>
-  <textarea id="freeTopics" placeholder="Ex: Comment fonctionne un LLM ? Quelles actus sur OpenAI ?"></textarea>
-  <button class="btn-primary" id="generateBtn" onclick="generateBrief()">Générer mon brief →</button>
-  <div class="bottom-space"></div>
-</div>
-
-<div class="page" id="page-settings">
-  <div class="section-title">Configuration</div>
-  <div class="section-sub">Clé API Google Gemini — gratuite, sans carte bancaire.</div>
-  <div class="steps">
-    <div class="step"><div class="step-num">1</div><div>Va sur <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></div></div>
-    <div class="step"><div class="step-num">2</div><div>Connecte-toi avec ton compte Google</div></div>
-    <div class="step"><div class="step-num">3</div><div>Clique sur <strong>"Create API Key"</strong></div></div>
-    <div class="step"><div class="step-num">4</div><div>Copie-colle la clé ci-dessous</div></div>
-  </div>
-  <span class="label" style="margin-top:18px">Ta clé API Gemini</span>
-  <input type="password" class="api-key-input" id="apiKeyInput" placeholder="AIza...">
-  <button class="btn-save" onclick="saveApiKey()">Enregistrer</button>
-  <div class="notice">
-    <span class="status-dot" id="statusDot"></span><span id="statusText">Aucune clé configurée</span><br><br>
-    Stockée localement dans ton navigateur. Gratuit jusqu'à 1 500 requêtes/jour.
-  </div>
-  <div style="margin-top:26px">
-    <div class="setting-row">
-      <div><div class="setting-label">Lecture auto</div><div class="setting-desc">Lance l'audio dès que le brief est prêt</div></div>
-      <div class="toggle" id="autoPlayToggle" onclick="this.classList.toggle('on')"></div>
     </div>
   </div>
-  <div class="bottom-space"></div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-infos" onclick="switchTab('infos',this)">◉ Infos</button>
+    <button class="tab" id="tab-generate" onclick="switchTab('generate',this)">✦ Générer</button>
+    <button class="tab" id="tab-settings" onclick="switchTab('settings',this)">⚙ Config</button>
+  </div>
+
+  <!-- INFOS PAGE -->
+  <div class="page active" id="page-infos">
+    <div id="infos-empty" class="empty-state">
+      <div class="empty-icon">✦</div>
+      <div class="empty-title">Aucun brief</div>
+      <div class="empty-sub">Génère ton brief du jour<br>depuis l'onglet Générer.</div>
+      <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('generate',document.getElementById('tab-generate'))">Générer →</button>
+    </div>
+
+    <div id="infos-loading" class="loading-state" style="display:none">
+      <div class="spinner"></div>
+      <div class="loading-text">Génération en cours…</div>
+      <div class="loading-steps">
+        <div class="loading-step" id="step1">01 — Connexion à Gemini</div>
+        <div class="loading-step" id="step2">02 — Recherche actualités</div>
+        <div class="loading-step" id="step3">03 — Compilation du brief</div>
+        <div class="loading-step" id="step4">04 — Finalisation</div>
+      </div>
+    </div>
+
+    <div id="infos-content" style="display:none">
+      <div class="brief-header">
+        <div class="brief-eyebrow" id="briefDate"></div>
+        <div class="brief-top">
+          <div class="brief-title">Brief du<br><em>jour.</em></div>
+          <button class="btn-refaire" onclick="clearCacheAndRegenerate()">↺ Refaire</button>
+        </div>
+      </div>
+
+      <div class="audio-bar">
+        <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">▶</button>
+        <div class="audio-info">
+          <div class="audio-label">Lecture audio</div>
+          <div class="audio-track" id="audioTrack">Brief prêt</div>
+        </div>
+        <div class="audio-speed" id="speedBtn" onclick="cycleSpeed()">1×</div>
+      </div>
+
+      <div class="section-filter" id="sectionFilter"></div>
+      <div id="briefSections"></div>
+    </div>
+  </div>
+
+  <!-- GENERATE PAGE -->
+  <div class="page" id="page-generate">
+    <div class="gen-title">Ton brief,<br>tes règles.</div>
+    <div class="gen-sub">Sélectionne les rubriques et génère ton brief du jour.</div>
+
+    <span class="label">Rubriques</span>
+    <div class="topics-grid">
+      <div class="topic-pill selected" data-topic="tech" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Tech & IA</div><div class="topic-desc">Quotidien</div></div>
+      <div class="topic-pill selected" data-topic="monde" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Monde</div><div class="topic-desc">Quotidien</div></div>
+      <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">Optionnel</div></div>
+      <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Commercial Tech</div><div class="topic-desc">Sales</div></div>
+      <div class="topic-pill selected" data-topic="sport" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Sport</div><div class="topic-desc">Résultats + News</div></div>
+      <div class="topic-pill selected" data-topic="culture" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Culture Générale</div><div class="topic-desc">Quotidien</div></div>
+      <div class="topic-pill" data-topic="citation" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Citation du jour</div><div class="topic-desc">Optionnel</div></div>
+      <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Optionnel</div></div>
+    </div>
+
+    <span class="label">Sujet libre (optionnel)</span>
+    <textarea id="freeTopics" placeholder="Ex: Dernières news sur OpenAI o3 ? Comment fonctionne le RAG ? Résultats PSG ?"></textarea>
+
+    <button class="btn-primary" id="generateBtn" onclick="generateBrief()">Générer mon brief →</button>
+    <div class="cache-notice" id="cacheNotice" style="display:none"></div>
+  </div>
+
+  <!-- CONFIG PAGE -->
+  <div class="page" id="page-settings">
+    <div class="gen-title">Configuration</div>
+    <div class="gen-sub">Clé API Google Gemini — gratuite.</div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div>Va sur <strong style="color:var(--text)">aistudio.google.com/apikey</strong></div></div>
+      <div class="step"><div class="step-num">2</div><div>Connecte-toi avec Google</div></div>
+      <div class="step"><div class="step-num">3</div><div>Clique <strong style="color:var(--text)">Create API key</strong></div></div>
+      <div class="step"><div class="step-num">4</div><div>Copie-colle ci-dessous</div></div>
+    </div>
+
+    <span class="label" style="margin-top:20px">Clé API Gemini</span>
+    <input type="password" class="api-key-input" id="apiKeyInput" placeholder="AIza...">
+    <button class="btn-save" onclick="saveApiKey()">Enregistrer</button>
+    <div class="notice">
+      <span class="status-dot" id="statusDot"></span><span id="statusText">Aucune clé configurée</span><br><br>
+      Stockée localement. Gratuit jusqu'à 1 500 requêtes/jour.
+    </div>
+
+    <div style="margin-top:24px">
+      <div class="setting-row">
+        <div><div class="setting-label">Lecture automatique</div><div class="setting-desc">Lance l'audio dès ouverture du brief</div></div>
+        <div class="toggle" id="autoPlayToggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Météo</div><div class="setting-desc">Affiche la météo dans l'en-tête</div></div>
+        <div class="toggle on" id="weatherToggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-let currentSpeed=1,isSpeaking=false,briefText='';
+// ─── STATE ───────────────────────────────────────────────
+let currentSpeed=1, isSpeaking=false, briefText='', frVoice=null;
 const speeds=[1,1.25,1.5,2];
+const TODAY=new Date().toISOString().slice(0,10);
+const CACHE_KEY='theo_sections_'+TODAY;
 
-function initDate(){
+// Section metadata — display order
+const SECTION_META={
+  tech:    {icon:'⚡',name:'Tech & IA'},
+  monde:   {icon:'🌍',name:'News Monde'},
+  france:  {icon:'🇫🇷',name:'News France'},
+  vocab:   {icon:'🔤',name:'Vocab Sales Tech'},
+  sport:   {icon:'⚽',name:'Sport'},
+  culture: {icon:'🧠',name:'Culture Générale'},
+  citation:{icon:'💬',name:'Citation'},
+  horoscope:{icon:'♍',name:'Horoscope Vierge'},
+};
+
+// ─── INIT ─────────────────────────────────────────────────
+function init(){
   const now=new Date();
-  const s=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
-  document.getElementById('headerDate').textContent=s;
-  document.getElementById('briefDate').textContent=s;
+  const dateStr=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  document.getElementById('headerDate').textContent=dateStr;
+  document.getElementById('briefDate').textContent=dateStr;
+  document.getElementById('splashDate').textContent=dateStr;
+
+  // Streak
+  updateStreak();
+
+  // Splash
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('out');
+    setTimeout(()=>{
+      document.getElementById('splash').style.display='none';
+      document.getElementById('app').classList.add('visible');
+    },700);
+  },1800);
+
+  // Load saved key
+  loadApiKey();
+
+  // Load voice
+  if('speechSynthesis' in window){
+    const tryVoice=()=>{
+      const voices=window.speechSynthesis.getVoices();
+      frVoice=voices.find(v=>v.lang==='fr-FR'&&v.localService)||
+              voices.find(v=>v.lang.startsWith('fr')&&v.localService)||
+              voices.find(v=>v.lang.startsWith('fr'))||null;
+    };
+    tryVoice();
+    window.speechSynthesis.onvoiceschanged=tryVoice;
+  }
+
+  // Weather
+  if(navigator.geolocation&&localStorage.getItem('theo_weather')!=='off'){
+    navigator.geolocation.getCurrentPosition(fetchWeather,()=>{});
+  }
+
+  // Check today's cache
+  const cached=localStorage.getItem(CACHE_KEY);
+  if(cached){
+    try{
+      const sections=JSON.parse(cached);
+      renderBriefFromSections(sections, Object.keys(sections));
+    }catch(e){}
+  }
 }
 
+// ─── STREAK ───────────────────────────────────────────────
+function updateStreak(){
+  let streak=JSON.parse(localStorage.getItem('theo_streak')||'{"count":0,"last":""}');
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const yd=yesterday.toISOString().slice(0,10);
+  if(streak.last===TODAY){/* same day, no change */}
+  else if(streak.last===yd){streak.count++;streak.last=TODAY;}
+  else{streak.count=1;streak.last=TODAY;}
+  localStorage.setItem('theo_streak',JSON.stringify(streak));
+  const badge=streak.count>1?`🔥 ${streak.count} jours`:'';
+  document.getElementById('streakBadge').textContent=badge;
+  document.getElementById('splashStreak').textContent=badge;
+}
+
+// ─── WEATHER ──────────────────────────────────────────────
+async function fetchWeather(pos){
+  try{
+    const {latitude:lat,longitude:lon}=pos.coords;
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=apparent_temperature&timezone=auto`);
+    const d=await r.json();
+    const code=d.current_weather?.weathercode||0;
+    const temp=Math.round(d.current_weather?.temperature||0);
+    const icons={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',61:'🌧',71:'🌨',80:'🌦',95:'⛈'};
+    const descs={0:'Clair',1:'Peu nuageux',2:'Nuageux',3:'Couvert',45:'Brouillard',51:'Bruine',61:'Pluie',71:'Neige',80:'Averses',95:'Orage'};
+    const icon=icons[code]||'🌡';
+    const desc=descs[code]||'';
+    document.getElementById('weatherIcon').textContent=icon;
+    document.getElementById('weatherTemp').textContent=temp+'°C';
+    document.getElementById('weatherDesc').textContent=desc;
+    document.getElementById('weatherWidget').style.display='flex';
+  }catch(e){}
+}
+
+// ─── TABS ─────────────────────────────────────────────────
 function switchTab(tab,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+tab).classList.add('active');
-  el.classList.add('active');
+  if(el)el.classList.add('active');
 }
 
+// ─── TOPIC TOGGLE ─────────────────────────────────────────
 function toggleTopic(el){
   el.classList.toggle('selected');
   el.querySelector('.check').textContent=el.classList.contains('selected')?'✓':'';
+  checkCacheForTopics();
 }
 
+function checkCacheForTopics(){
+  const cached=localStorage.getItem(CACHE_KEY);
+  if(!cached)return;
+  const sections=JSON.parse(cached);
+  const selected=[...document.querySelectorAll('.topic-pill.selected')].map(p=>p.dataset.topic);
+  const hasCached=selected.every(t=>sections[t]);
+  const notice=document.getElementById('cacheNotice');
+  if(hasCached&&selected.length>0){
+    notice.style.display='block';
+    notice.textContent='✓ Ces rubriques sont déjà générées — affichage instantané';
+  }else{
+    notice.style.display='none';
+  }
+}
+
+// ─── API KEY ──────────────────────────────────────────────
 function saveApiKey(){
   const key=document.getElementById('apiKeyInput').value.trim();
   if(!key)return;
   localStorage.setItem('theo_gemini_key',key);
   updateStatus(true);
 }
-
 function updateStatus(ok){
   document.getElementById('statusDot').className=ok?'status-dot ok':'status-dot';
   document.getElementById('statusText').textContent=ok?'Clé API configurée ✓':'Aucune clé configurée';
 }
-
 function loadApiKey(){
   const key=localStorage.getItem('theo_gemini_key');
   if(key){document.getElementById('apiKeyInput').value=key;updateStatus(true);}
 }
 
+// ─── SECTION FILTER CHIPS ─────────────────────────────────
+function buildFilterChips(sectionKeys){
+  const container=document.getElementById('sectionFilter');
+  container.innerHTML='';
+  // All chip
+  const allChip=document.createElement('div');
+  allChip.className='filter-chip active';
+  allChip.textContent='Tout';
+  allChip.dataset.section='all';
+  allChip.onclick=()=>filterSections('all');
+  container.appendChild(allChip);
+  for(const key of sectionKeys){
+    const meta=SECTION_META[key];
+    if(!meta)continue;
+    const chip=document.createElement('div');
+    chip.className='filter-chip';
+    chip.textContent=meta.icon+' '+meta.name;
+    chip.dataset.section=key;
+    chip.onclick=()=>filterSections(key);
+    container.appendChild(chip);
+  }
+}
+
+function filterSections(key){
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.filter-chip[data-section="${key}"]`)?.classList.add('active');
+  document.querySelectorAll('.brief-section[data-section]').forEach(s=>{
+    s.style.display=(key==='all'||s.dataset.section===key)?'':'none';
+  });
+}
+
+// ─── GENERATE ─────────────────────────────────────────────
 async function generateBrief(){
   const apiKey=localStorage.getItem('theo_gemini_key');
   if(!apiKey){alert('Configure ta clé API dans Config.');switchTab('settings',document.getElementById('tab-settings'));return;}
   const topics=[...document.querySelectorAll('.topic-pill.selected')].map(p=>p.dataset.topic);
   if(!topics.length){alert('Sélectionne au moins une rubrique.');return;}
+
+  // Check cache — load cached sections, only generate missing ones
+  let cachedSections={};
+  const rawCache=localStorage.getItem(CACHE_KEY);
+  if(rawCache){try{cachedSections=JSON.parse(rawCache);}catch(e){}}
+  const missingSections=topics.filter(t=>!cachedSections[t]);
   const freeText=document.getElementById('freeTopics').value.trim();
 
-  // CACHE JOURNALIER — même brief toute la journée
-  const today=new Date().toISOString().slice(0,10); // YYYY-MM-DD
-  const cacheKey='theo_brief_'+today;
-  const cached=localStorage.getItem(cacheKey);
-  if(cached){
-    document.getElementById('generateBtn').disabled=false;
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.getElementById('page-morning').classList.add('active');
-    document.getElementById('tab-morning').classList.add('active');
-    document.getElementById('morning-empty').style.display='none';
-    document.getElementById('morning-loading').style.display='none';
-    document.getElementById('morning-content').style.display='none';
-    renderBrief(cached);
+  // If all sections cached, just display
+  if(missingSections.length===0&&!freeText){
+    renderBriefFromSections(cachedSections, topics);
+    switchTab('infos',document.getElementById('tab-infos'));
     return;
   }
 
   document.getElementById('generateBtn').disabled=true;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-morning').classList.add('active');
-  document.getElementById('tab-morning').classList.add('active');
-  document.getElementById('morning-empty').style.display='none';
-  document.getElementById('morning-loading').style.display='block';
-  document.getElementById('morning-content').style.display='none';
+  switchTab('infos',document.getElementById('tab-infos'));
+  document.getElementById('infos-empty').style.display='none';
+  document.getElementById('infos-loading').style.display='block';
+  document.getElementById('infos-content').style.display='none';
+
+  // Animate steps
+  const steps=['step1','step2','step3','step4'];
+  let si=0;
+  const stepInterval=setInterval(()=>{
+    if(si>0)document.getElementById(steps[si-1]).classList.remove('active'),document.getElementById(steps[si-1]).classList.add('done');
+    if(si<steps.length)document.getElementById(steps[si]).classList.add('active');
+    si++;
+    if(si>steps.length)clearInterval(stepInterval);
+  },900);
 
   const now=new Date();
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
   const dateStr=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const extra=freeText?`\n\nSujets supplémentaires demandés par Théo : ${freeText}`:'';
+  const yesterdayStr=yesterday.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const extra=freeText?`\n\nSujets libres demandés par Théo (traite-les avec autant de soin que les autres rubriques, infos vérifiées, dense, complet) :\n${freeText}`:'';
 
-  // Build section instructions based on selected topics
-  const sectionInstructions=[];
-  if(topics.includes('tech'))sectionInstructions.push(`===SECTION:tech===
-IMPORTANT : Utilise OBLIGATOIREMENT Google Search. Ne cite que des articles que tu as réellement trouvés. Si tu n'es pas certain qu'un article existe, ne le mets pas.
-Trouve 3 vrais articles de la semaine en cours sur tech, IA, startups, big tech. Pour chaque article trouvé via search :
-ARTICLE###[Titre exact tel qu'il apparaît dans les résultats de recherche]###[Nom du média exact]###[Résumé très dense de 10 à 15 lignes : contexte complet, qui sont les acteurs, quels chiffres, quelles implications pour l'industrie tech, pourquoi c'est important à savoir aujourd'hui]`);
+  const sectionsToGenerate=freeText?topics:missingSections;
 
-  if(topics.includes('monde'))sectionInstructions.push(`===SECTION:monde===
-IMPORTANT : Utilise OBLIGATOIREMENT Google Search. Ne cite que des articles réels trouvés.
-Trouve 3 vrais articles internationaux majeurs de cette semaine. Pour chaque :
-ARTICLE###[Titre exact]###[Média exact]###[Résumé dense de 10 à 15 lignes : faits précis, acteurs nommés, contexte géopolitique ou économique, chiffres, enjeux concrets]`);
+  const sectionPrompts=[];
+  if(sectionsToGenerate.includes('tech'))sectionPrompts.push(`===SECTION:tech===
+Utilise Google Search. Trouve 3 vrais articles RÉCENTS (cette semaine) sur la tech, l'IA, les startups, big tech.
+Ne cite QUE ce que tu as réellement trouvé. Format par article :
+ARTICLE###[Titre exact trouvé]###[Média]###[Résumé 10-15 lignes : contexte, acteurs, chiffres, enjeux, pourquoi c'est important maintenant]`);
 
-  if(topics.includes('france'))sectionInstructions.push(`===SECTION:france===
-IMPORTANT : Utilise OBLIGATOIREMENT Google Search. Ne cite que des articles réels trouvés.
-Trouve 2 vrais articles français importants de cette semaine. Pour chaque :
-ARTICLE###[Titre exact]###[Média exact]###[Résumé dense de 10 à 15 lignes : faits, acteurs, impact en France, chiffres si disponibles]`);
+  if(sectionsToGenerate.includes('monde'))sectionPrompts.push(`===SECTION:monde===
+Utilise Google Search. Trouve 3 vrais articles internationaux majeurs de cette semaine.
+ARTICLE###[Titre exact]###[Média]###[Résumé 10-15 lignes : faits précis, acteurs nommés, chiffres, enjeux géopolitiques ou économiques]`);
 
-  if(topics.includes('vocab'))sectionInstructions.push(`===SECTION:vocab===
-Choisis UN terme anglais incontournable du monde commercial tech / sales B2B (méthodes de vente, CRM, growth, prospection, account management, négociation, SaaS sales, etc.).
+  if(sectionsToGenerate.includes('france'))sectionPrompts.push(`===SECTION:france===
+Utilise Google Search. Trouve 2 vrais articles français importants de cette semaine.
+ARTICLE###[Titre exact]###[Média]###[Résumé 10-15 lignes : faits, acteurs, impact concret en France]`);
+
+  if(sectionsToGenerate.includes('vocab'))sectionPrompts.push(`===SECTION:vocab===
+Terme anglais clé du monde commercial tech / sales B2B. Exemples de domaines : méthodes de vente, CRM, MEDDIC, SPIN Selling, account-based selling, SDR/AE, outbound, inbound, pipeline, ARR, churn, NRR, etc.
 Format STRICT :
-TERM###[Mot en anglais]###[Catégorie grammaticale]###[Définition approfondie en français : 8 à 10 lignes minimum. Origine du concept, pourquoi c'est crucial dans le métier de commercial tech, comment ça s'applique concrètement au quotidien d'un sales]###[Exemple de phrase professionnelle en anglais]###[Scénario concret d'usage en entreprise tech : situation réaliste de 4 à 5 lignes]`);
+TERM###[Mot]###[Cat. grammaticale]###[Définition profonde 8-10 lignes en français : concept, origine, usage dans le métier sales tech, pourquoi indispensable]###[Exemple phrase anglaise professionnelle]###[Scénario concret 4-5 lignes : situation réaliste en entreprise tech]`);
 
-  if(topics.includes('citation'))sectionInstructions.push(`===SECTION:citation===
-UNE citation forte et vérifiée liée au business, au leadership, à la tech ou à la vente. Vérifie via Google Search que la citation est réellement attribuée à cette personne.
-Format : QUOTE###[Citation en langue originale]###[Prénom Nom, titre/rôle]###[Analyse de 4 à 5 lignes : pourquoi cette citation est puissante, ce qu'elle apprend concrètement]`);
+  if(sectionsToGenerate.includes('sport'))sectionPrompts.push(`===SECTION:sport===
+Utilise Google Search OBLIGATOIREMENT. Date d'hier : ${yesterdayStr}. Date du jour : ${dateStr}.
+Cherche les résultats et news dans ces sports : football (Ligue 1, Champions League, Premier League, Liga, matchs PSG), basket (NBA, Betclic Élite), rugby (Top 14, Champions Cup), tennis (uniquement Masters 1000 et Grand Chelem).
+Pour chaque sport avec résultat ou news important :
+ARTICLE###[Description claire : ex "PSG 2-1 Monaco — Ligue 1" ou "Résultats NBA nuit du 29 mars"]###[Source]###[Résumé 6-10 lignes : scores, performances notables, contexte classement, incidents marquants, ou news importante si pas de match]
+Couvre aussi toute grosse news dans d'autres sports si événement majeur.`);
 
-  if(topics.includes('horoscope'))sectionInstructions.push(`===SECTION:horoscope===
-Utilise Google Search pour trouver le VRAI horoscope du jour pour le signe Vierge (cherche "horoscope vierge aujourd'hui ${dateStr}" ou "horoscope vierge ${today}"). Cite la source. Résume le vrai horoscope trouvé en 4 à 5 lignes concrètes. Si tu ne trouves pas le vrai horoscope du jour via search, dis-le clairement.`);
+  if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`===SECTION:culture===
+UN fait de culture générale vérifiable, précis, peu connu mais important. Histoire, science, économie, géographie, ou lié à l'actualité récente. Pas de généralité. 8-10 lignes : le fait, son contexte historique ou scientifique, pourquoi c'est important à savoir.`);
 
-  if(topics.includes('culture'))sectionInstructions.push(`===SECTION:culture===
-UN fait de culture générale vérifiable et peu connu : histoire, science, économie, géographie, ou lié à une actualité récente. Quelque chose de précis et sourcé, pas une généralité. Explique en 8 à 10 lignes : le fait lui-même, son contexte, pourquoi c'est important à savoir.`);
+  if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`===SECTION:citation===
+UNE citation forte vérifiée (vérifie via Search que l'attribution est correcte). Business, leadership, tech ou vente.
+QUOTE###[Citation langue originale]###[Prénom Nom, rôle/entreprise]###[Analyse 4-5 lignes : ce qu'elle apprend, pourquoi elle est puissante aujourd'hui]`);
 
-  const prompt=`Tu es le rédacteur d'un brief matinal de haute qualité pour Théo, 21 ans, étudiant Grande École (Neoma Business School), passionné de tech, de business et de vente.
+  if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`===SECTION:horoscope===
+Utilise Google Search pour trouver le VRAI horoscope Vierge du jour (${dateStr}). Cherche "horoscope vierge ${dateStr}" ou "horoscope vierge aujourd'hui". Cite la source trouvée. Résume le vrai horoscope en 4-5 lignes concrètes. Si introuvable, dis-le clairement.`);
 
-Date du jour : ${dateStr}${extra}
+  const prompt=`Tu es le rédacteur d'un brief matinal premium pour Théo, 21 ans, étudiant Grande École (Neoma Business School), en stage chef de projet digital, passionné de tech, business et vente.
 
-INSTRUCTIONS GLOBALES :
-- Tu DOIS utiliser Google Search pour trouver de vrais articles récents (cette semaine). Pas de contenu inventé.
-- Ton : direct, dense, intelligent. Aucune formule creuse. Des faits, des chiffres, des noms.
-- Langue : français, sauf pour le vocab tech (anglais).
-- Le contenu doit être LONG et RICHE. Théo veut passer 15 minutes à lire. Ne résume pas trop.
-- Respecte EXACTEMENT les formats demandés pour chaque section — l'appli les parse automatiquement.
+Date du jour : ${dateStr}
+Date d'hier : ${yesterdayStr}${extra}
 
-${sectionInstructions.join('\n\n')}
+RÈGLES ABSOLUES :
+- Utilise Google Search pour TOUTES les rubriques news/sport/horoscope. Ne génère pas de fausses infos.
+- Ton : direct, dense, intelligent. Zéro formule creuse. Des faits, des noms, des chiffres.
+- Langue : français sauf vocab (anglais). Contenu long et riche.
+- Respecte EXACTEMENT les formats demandés — l'appli parse automatiquement.
+- Pour les ARTICLE### : ne mets pas de sauts de ligne à l'intérieur d'une ligne.
 
-===END===
+${sectionPrompts.join('\n\n')}
 
-IMPORTANT : Respecte exactement les séparateurs ### et les marqueurs ARTICLE, TERM, QUOTE. Ne mets pas de sauts de ligne à l'intérieur d'une ligne ARTICLE ou TERM.`;
+===END===`;
 
   try{
     const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
@@ -309,138 +588,180 @@ IMPORTANT : Respecte exactement les séparateurs ### et les marqueurs ARTICLE, T
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         contents:[{parts:[{text:prompt}]}],
-        generationConfig:{temperature:0.7,maxOutputTokens:8192},
+        generationConfig:{temperature:0.65,maxOutputTokens:8192},
         tools:[{google_search:{}}]
       })
     });
+    clearInterval(stepInterval);
+    steps.forEach(s=>document.getElementById(s).classList.remove('active'));
     const data=await res.json();
-    if(!res.ok){
-      const errMsg=data.error?.message||JSON.stringify(data.error)||'Erreur inconnue';
-      throw new Error(`API ${res.status}: ${errMsg}`);
-    }
+    if(!res.ok){const e=data.error?.message||JSON.stringify(data.error)||'Erreur';throw new Error(`API ${res.status}: ${e}`);}
     const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-    if(!text)throw new Error('Réponse vide');
-    // Sauvegarde dans le cache du jour
-    localStorage.setItem(cacheKey, text);
-    renderBrief(text);
+    if(!text)throw new Error('Réponse vide de Gemini');
+
+    // Parse and merge with cached sections
+    const newSections=parseSections(text);
+    const allSections={...cachedSections,...newSections};
+    if(!freeText)localStorage.setItem(CACHE_KEY,JSON.stringify(allSections));
+    renderBriefFromSections(allSections, topics);
+
   }catch(err){
-    document.getElementById('morning-loading').style.display='none';
-    document.getElementById('morning-empty').style.display='block';
-    document.getElementById('morning-empty').innerHTML=`<div class="empty-icon">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">${err.message}<br><br>Vérifie ta clé dans Config.</div>`;
+    clearInterval(stepInterval);
+    document.getElementById('infos-loading').style.display='none';
+    document.getElementById('infos-empty').style.display='block';
+    document.getElementById('infos-empty').innerHTML=`
+      <div class="empty-icon">⚠</div>
+      <div class="empty-title">Erreur</div>
+      <div class="empty-sub">${err.message}<br><br>Vérifie ta clé dans Config.</div>
+      <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('settings',document.getElementById('tab-settings'))">Config →</button>`;
   }
   document.getElementById('generateBtn').disabled=false;
 }
 
-function renderBrief(text){
-  const meta={
-    tech:{icon:'⚡',name:'Tech & IA'},
-    monde:{icon:'🌍',name:'News Monde'},
-    france:{icon:'🇫🇷',name:'News France'},
-    vocab:{icon:'🔤',name:'Vocab Commercial Tech'},
-    citation:{icon:'💬',name:'Citation du jour'},
-    horoscope:{icon:'♍',name:'Horoscope Vierge'},
-    culture:{icon:'🧠',name:'Culture Générale'}
-  };
+// ─── PARSE SECTIONS ───────────────────────────────────────
+function parseSections(text){
   const sections={};
   const re=/===SECTION:(\w+)===([\s\S]*?)(?====SECTION:|===END===|$)/g;
   let m;
   while((m=re.exec(text))!==null)sections[m[1].toLowerCase()]=m[2].trim();
-  briefText='';let html='';
+  return sections;
+}
 
-  for(const[key,info]of Object.entries(meta)){
+// ─── RENDER ───────────────────────────────────────────────
+function renderBriefFromSections(sections, visibleTopics){
+  briefText='';
+  let html='';
+  const sectionKeys=Object.keys(SECTION_META).filter(k=>sections[k]);
+  buildFilterChips(sectionKeys);
+
+  let delay=0;
+  for(const[key,meta] of Object.entries(SECTION_META)){
     const content=sections[key];
     if(!content)continue;
-    briefText+=`${info.name}. `;
+    const isVisible=visibleTopics.includes(key);
+    const displayStyle=isVisible?'':'none';
+    delay+=60;
 
     if(key==='vocab'){
-      // TERM###word###cat###def###example###scenario
       const line=content.split('\n').find(l=>l.startsWith('TERM###'))||content;
       const p=line.replace('TERM###','').split('###').map(s=>s.trim());
       const word=p[0]||'',cat=p[1]||'',def=p[2]||content,ex=p[3]||'',scenario=p[4]||'';
-      briefText+=`${word}. ${def} `;
-      html+=`<div class="brief-section">
-        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
+      briefText+=`Vocabulaire. ${word}. ${def}. `;
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
         <div class="section-body">
           <div class="vocab-word">${word}</div>
           <div class="vocab-type">${cat}</div>
           <div class="vocab-def">${def.replace(/\n/g,'<br>')}</div>
           ${ex?`<div class="vocab-example">"${ex}"</div>`:''}
-          ${scenario?`<div style="margin-top:12px;padding:12px;background:rgba(200,169,110,0.06);border-radius:8px;font-size:13px;line-height:1.7;color:var(--text)">${scenario.replace(/\n/g,'<br>')}</div>`:''}
+          ${scenario?`<div class="vocab-scenario">${scenario.replace(/\n/g,'<br>')}</div>`:''}
         </div></div>`;
 
-    } else if(key==='citation'){
-      // QUOTE###quote###author###analysis
+    }else if(key==='citation'){
       const line=content.split('\n').find(l=>l.startsWith('QUOTE###'))||content;
       const p=line.replace('QUOTE###','').split('###').map(s=>s.trim());
       const quote=p[0]||content,author=p[1]||'',analysis=p[2]||'';
-      briefText+=`${quote} — ${author}. `;
-      html+=`<div class="brief-section">
-        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
+      briefText+=`Citation. ${quote} — ${author}. `;
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
         <div class="section-body">
-          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;line-height:1.4;margin-bottom:10px;color:var(--accent)">"${quote}"</div>
-          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.05em">— ${author}</div>
-          ${analysis?`<div style="font-size:13px;line-height:1.7;color:var(--muted)">${analysis.replace(/\n/g,'<br>')}</div>`:''}
+          <div class="quote-text">"${quote}"</div>
+          <div class="quote-author">— ${author}</div>
+          ${analysis?`<div class="quote-analysis">${analysis.replace(/\n/g,'<br>')}</div>`:''}
         </div></div>`;
 
-    } else if(key==='horoscope'||key==='culture'){
+    }else if(key==='horoscope'||key==='culture'){
       const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
-      briefText+=content.replace(/\n/g,' ')+' ';
-      html+=`<div class="brief-section">
-        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
-        <div class="section-body">${paras}</div></div>`;
+      briefText+=`${meta.name}. ${content.replace(/\n/g,' ')} `;
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
+        <div class="section-body"><div class="simple-content">${paras}</div></div></div>`;
 
-    } else {
-      // News sections — parse ARTICLE lines
+    }else{
+      // News / Sport — ARTICLE lines
       const lines=content.split('\n');
-      let articlesHtml='';
-      let hasArticles=false;
+      let articlesHtml='';let hasArticles=false;
       for(const line of lines){
         if(!line.startsWith('ARTICLE###'))continue;
         hasArticles=true;
         const p=line.replace('ARTICLE###','').split('###').map(s=>s.trim());
-        const title=p[0]||'Article',source=p[1]||'',summary=p[2]||p[3]||'';
+        const title=p[0]||'',source=p[1]||'',summary=p[2]||p[3]||'';
+        if(!title)continue;
         briefText+=`${title}. ${summary} `;
         const searchUrl=`https://news.google.com/search?q=${encodeURIComponent(title+(source?' '+source:''))}&hl=fr`;
-        articlesHtml+=`<div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
-            <div style="font-size:15px;font-weight:600;line-height:1.35;flex:1">${title}</div>
-            <a href="${searchUrl}" target="_blank" rel="noopener" style="flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:4px 8px;text-decoration:none;white-space:nowrap">Lire →</a>
+        articlesHtml+=`<div class="article-item">
+          <div class="article-top">
+            <div class="article-title">${title}</div>
+            <a href="${searchUrl}" target="_blank" rel="noopener" class="article-link">Lire →</a>
           </div>
-          ${source?`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">${source}</div>`:''}
-          <div style="font-size:13px;line-height:1.75;color:rgba(232,230,224,0.85)">${summary.replace(/\n/g,'<br>')}</div>
+          ${source?`<div class="article-source">${source}</div>`:''}
+          ${summary?`<div class="article-summary">${summary.replace(/\n/g,'<br>')}</div>`:''}
         </div>`;
       }
-      // Fallback if no ARTICLE format found
       if(!hasArticles){
         const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
         briefText+=content.replace(/\n/g,' ')+' ';
-        articlesHtml=`<div class="section-body">${paras}</div>`;
-        html+=`<div class="brief-section"><div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>${articlesHtml}</div>`;
+        html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+          ${sectionHeader(meta,'open')}
+          <div class="section-body"><div class="simple-content">${paras}</div></div></div>`;
         continue;
       }
-      html+=`<div class="brief-section">
-        <div class="section-header"><div class="section-icon">${info.icon}</div><div class="section-name">${info.name}</div></div>
-        <div style="padding:16px">${articlesHtml}</div></div>`;
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
+        <div class="section-body">${articlesHtml}</div></div>`;
     }
   }
-  document.getElementById('briefSections').innerHTML=html||'<div style="padding:16px;color:var(--muted)">Format inattendu — réessaie.</div>';
-  document.getElementById('morning-loading').style.display='none';
-  document.getElementById('morning-content').style.display='block';
-  if(document.getElementById('autoPlayToggle').classList.contains('on'))setTimeout(startAudio,600);
+
+  document.getElementById('briefSections').innerHTML=html||'<p style="color:var(--muted);padding:16px">Format inattendu — réessaie.</p>';
+  document.getElementById('infos-loading').style.display='none';
+  document.getElementById('infos-empty').style.display='none';
+  document.getElementById('infos-content').style.display='block';
+
+  if(document.getElementById('autoPlayToggle').classList.contains('on'))setTimeout(startAudio,800);
 }
 
+function sectionHeader(meta,state){
+  return `<div class="section-header" onclick="toggleSection(this)">
+    <div class="section-icon">${meta.icon}</div>
+    <div class="section-name">${meta.name}</div>
+    <div class="section-toggle ${state==='open'?'open':''}">▾</div>
+  </div>`;
+}
+
+function toggleSection(headerEl){
+  const body=headerEl.nextElementSibling;
+  const toggle=headerEl.querySelector('.section-toggle');
+  body.classList.toggle('collapsed');
+  toggle.classList.toggle('open');
+}
+
+// ─── CLEAR CACHE ──────────────────────────────────────────
+function clearCacheAndRegenerate(){
+  localStorage.removeItem(CACHE_KEY);
+  document.getElementById('infos-content').style.display='none';
+  document.getElementById('infos-empty').style.display='block';
+  document.getElementById('infos-empty').innerHTML=`
+    <div class="empty-icon">✦</div>
+    <div class="empty-title">Cache effacé</div>
+    <div class="empty-sub">Sélectionne tes rubriques<br>et génère un nouveau brief.</div>
+    <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('generate',document.getElementById('tab-generate'))">Générer →</button>`;
+  switchTab('generate',document.getElementById('tab-generate'));
+}
+
+// ─── AUDIO ────────────────────────────────────────────────
 function toggleAudio(){isSpeaking?stopAudio():startAudio();}
 
 function startAudio(){
   if(!briefText)return;
   stopAudio();
   const utt=new SpeechSynthesisUtterance(briefText);
-  utt.lang='fr-FR';utt.rate=currentSpeed;
-  utt.onend=()=>{isSpeaking=false;document.getElementById('audioBtn').textContent='▶';document.getElementById('audioTrack').textContent='Brief terminé';};
+  if(frVoice)utt.voice=frVoice;
+  utt.lang='fr-FR';utt.rate=currentSpeed;utt.pitch=1.05;
+  utt.onend=()=>{isSpeaking=false;document.getElementById('audioBtn').textContent='▶';document.getElementById('audioTrack').textContent='Terminé';};
   window.speechSynthesis.speak(utt);
   isSpeaking=true;
   document.getElementById('audioBtn').textContent='⏸';
-  document.getElementById('audioTrack').textContent='Lecture en cours...';
+  document.getElementById('audioTrack').textContent='Lecture en cours…';
 }
 
 function stopAudio(){
@@ -456,15 +777,8 @@ function cycleSpeed(){
   if(isSpeaking){stopAudio();startAudio();}
 }
 
-function clearCacheAndRegenerate(){
-  const today=new Date().toISOString().slice(0,10);
-  localStorage.removeItem('theo_brief_'+today);
-  document.getElementById('morning-content').style.display='none';
-  document.getElementById('morning-empty').style.display='block';
-  switchTab('evening',document.getElementById('tab-evening'));
-}
-
-initDate();loadApiKey();
+// ─── START ────────────────────────────────────────────────
+window.addEventListener('load',init);
 </script>
 </body>
 </html>
