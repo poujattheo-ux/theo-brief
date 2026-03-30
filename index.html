@@ -549,72 +549,63 @@ async function generateBrief(){
 
   const sectionPrompts=[];
   
-  if(sectionsToGenerate.includes('tech'))sectionPrompts.push(`===SECTION:tech===
-Recherche 3 vrais articles tech/IA/startups récents. Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7} jusqu'à aujourd'hui). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est un sujet d'une importance capitale dans l'industrie. STRICTEMENT AUCUN SPORT.
-Renvoie un tableau d'objets JSON sous la clé "tech" avec {title, link, source, summary}.`);
+  if(sectionsToGenerate.includes('tech'))sectionPrompts.push(`Recherche 3 vrais articles tech/IA/startups récents. Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7} jusqu'à aujourd'hui). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est un sujet d'une importance capitale dans l'industrie. STRICTEMENT AUCUN SPORT.
+Tu dois générer la clé "tech" avec ce format : [{"title":"...","link":"...","source":"...","summary":"..."}]`);
 
-  if(sectionsToGenerate.includes('monde'))sectionPrompts.push(`===SECTION:monde===
-Recherche 3 vrais articles d'actualité internationale majeurs. Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7}). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est un événement historique/géopolitique crucial. STRICTEMENT AUCUN SPORT.
-Renvoie un tableau d'objets JSON sous la clé "monde" avec {title, link, source, summary}.`);
+  if(sectionsToGenerate.includes('monde'))sectionPrompts.push(`Recherche 3 vrais articles d'actualité internationale majeurs. Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7}). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est un événement historique/géopolitique crucial. STRICTEMENT AUCUN SPORT.
+Tu dois générer la clé "monde" avec ce format : [{"title":"...","link":"...","source":"...","summary":"..."}]`);
 
-  if(sectionsToGenerate.includes('france'))sectionPrompts.push(`===SECTION:france===
-Recherche 3 vrais articles d'actualité française majeurs (économie, politique, société). Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7}). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est indispensable. STRICTEMENT AUCUN SPORT.
-Renvoie un tableau d'objets JSON sous la clé "france" avec {title, link, source, summary}.`);
+  if(sectionsToGenerate.includes('france'))sectionPrompts.push(`Recherche 3 vrais articles d'actualité française majeurs (économie, politique, société). Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7}). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est indispensable. STRICTEMENT AUCUN SPORT.
+Tu dois générer la clé "france" avec ce format : [{"title":"...","link":"...","source":"...","summary":"..."}]`);
 
-  if(sectionsToGenerate.includes('vocab'))sectionPrompts.push(`===SECTION:vocab===
-Choisis 1 expression ou terme TRES POINTU en anglais lié exclusivement au métier de Sales Tech, Software ou Business Development. FOURNIS BEAUCOUP DE DÉTAILS et de phrases d'exemple. STRICTEMENT AUCUN SPORT.
-Renvoie un objet JSON sous la clé "vocab" avec {word, type, def, example, scenario}.
-ATTENTION : Le 'scenario' DOIT obligatoirement être un exemple dense, détaillé et concret me mettant en scène (Théo, 21 ans, étudiant Neoma BS PGE, futur Sales Tech, en alternance chez Saint-Gobain Point P ou préparant son M2 double diplôme Centrale Supélec).`);
+  if(sectionsToGenerate.includes('vocab'))sectionPrompts.push(`Choisis 1 expression ou terme TRES POINTU en anglais lié exclusivement au métier de Sales Tech, Software ou Business Development. FOURNIS BEAUCOUP DE DÉTAILS et de phrases d'exemple. STRICTEMENT AUCUN SPORT. Le 'scenario' DOIT obligatoirement être un exemple dense, détaillé et concret me mettant en scène (Théo, 21 ans, étudiant Neoma BS PGE, futur Sales Tech, en alternance chez Saint-Gobain Point P ou préparant son M2 double diplôme Centrale Supélec).
+Tu dois générer la clé "vocab" avec ce format : {"word":"...","type":"...","def":"...","example":"...","scenario":"..."}`);
 
-  if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`===SECTION:culture===
-Partage un fait de culture générale percutant (économie, géopolitique, ou histoire).
-Renvoie un objet JSON sous la clé "culture" avec {text}.`);
+  if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`Partage un fait de culture générale percutant (économie, géopolitique, ou histoire).
+Tu dois générer la clé "culture" avec ce format : {"text":"..."}`);
 
-  if(sectionsToGenerate.includes('personnalite'))sectionPrompts.push(`===SECTION:personnalite===
-Présente un grand stratège, une figure historique ou un leader d'entreprise inspirant pour le monde du business.
-Renvoie un objet JSON sous la clé "personnalite" avec {text}.`);
+  if(sectionsToGenerate.includes('personnalite'))sectionPrompts.push(`Présente un grand stratège, une figure historique ou un leader d'entreprise inspirant pour le monde du business.
+Tu dois générer la clé "personnalite" avec ce format : {"text":"..."}`);
 
-  if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`===SECTION:citation===
-Donne une citation inspirante liée au dépassement de soi, à l'ambition ou à la vente stratégique.
-Renvoie un objet JSON sous la clé "citation" avec {text, author, analysis}.`);
+  if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`Donne une citation inspirante liée au dépassement de soi, à l'ambition ou à la vente stratégique.
+Tu dois générer la clé "citation" avec ce format : {"text":"...","author":"...","analysis":"..."}`);
 
-  if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`===SECTION:horoscope===
-Génère le VRAI horoscope du jour pour le signe Vierge. Il DOIT inclure une analyse professionnelle ET OBLIGATOIREMENT une partie "Santé / Énergie" détaillée en lien avec mes objectifs de transformation physique.
-Renvoie un objet JSON sous la clé "horoscope" avec {text}.`);
+  if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`Génère le VRAI horoscope du jour pour le signe Vierge. Il DOIT inclure une analyse professionnelle ET OBLIGATOIREMENT une partie "Santé / Énergie" détaillée en lien avec mes objectifs de transformation physique.
+Tu dois générer la clé "horoscope" avec ce format : {"text":"..."}`);
 
-  if(hasFreeText)sectionPrompts.push(`===SECTION:libre===
-Traite ce sujet de manière analytique et profonde : "${freeText}".
-Renvoie un objet JSON sous la clé "libre" avec {text}.`);
+  if(hasFreeText)sectionPrompts.push(`Traite ce sujet de manière analytique et profonde : "${freeText}".
+Tu dois générer la clé "libre" avec ce format : {"text":"..."}`);
 
-  const systemPrompt = `Tu es l'assistant de veille stratégique brutalement honnête de Théo Poujat (21 ans, étudiant Neoma BS PGE, futur Sales Tech).
+  const systemPrompt = `Tu es l'assistant de veille stratégique de Théo Poujat (21 ans, étudiant Neoma BS PGE, futur Sales Tech).
 Aujourd'hui, nous sommes le ${dateStr}.
 Tes informations doivent être factuelles, directes et pertinentes pour le monde de la tech et du business. AUCUN SUJET SPORTIF.
-Si le script t'est envoyé plusieurs fois aujourd'hui, assure-toi de privilégier les news de la journée en cours.
-Tu dois répondre STRICTEMENT par un unique objet JSON valide contenant SEULEMENT les clés des sections demandées (ex: "tech", "monde", "vocab", etc.).
-Ne mets PAS de balises Markdown (\`\`\`json).`;
+Tu vas générer un SEUL objet JSON valide contenant UNIQUEMENT les clés qui te sont demandées ci-dessous.`;
 
   const finalPrompt = systemPrompt + "\n\n" + sectionPrompts.join("\n\n");
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: finalPrompt }] }],
-        generationConfig: { temperature: 0.7 }
+        generationConfig: { 
+            temperature: 0.7,
+            response_mime_type: "application/json"
+        }
       })
     });
 
-    if (!response.ok) throw new Error("Erreur HTTP " + response.status);
+    if (!response.ok) {
+        const errData = await response.json();
+        throw new Error("API Error: " + (errData.error?.message || response.status));
+    }
+    
     const data = await response.json();
-    let rawText = data.candidates[0].content.parts[0].text.trim();
-    logDebug("API brute: " + rawText);
+    let rawText = data.candidates[0].content.parts[0].text;
+    logDebug("API JSON retourné: " + rawText);
 
-    if(rawText.startsWith('```json')) rawText = rawText.replace(/^```json/, '');
-    if(rawText.startsWith('```')) rawText = rawText.replace(/^```/, '');
-    if(rawText.endsWith('```')) rawText = rawText.replace(/```$/, '');
-
-    const newSections = JSON.parse(rawText.trim());
+    const newSections = JSON.parse(rawText);
     
     // Fusion avec le cache existant (pour ne pas perdre ce qui a déjà été généré aujourd'hui)
     const finalSections = { ...cachedSections, ...newSections };
@@ -632,13 +623,17 @@ Ne mets PAS de balises Markdown (\`\`\`json).`;
 
   } catch (err) {
     logDebug("Erreur fatale: " + err.message);
-    alert("Erreur lors de la génération. Vérifie la clé API, relance, ou regarde les logs de debug en bas.");
+    alert("Erreur lors de la génération. Va dans Config -> Active 'Debug Logs' pour voir pourquoi l'API a refusé de répondre.");
     switchTab('generate', document.getElementById('tab-generate'));
   } finally {
     document.getElementById('generateBtn').disabled = false;
     setTimeout(() => {
       document.getElementById('infos-loading').style.display = 'none';
-      document.getElementById('infos-content').style.display = 'block';
+      if (document.getElementById('briefSections').innerHTML !== '') {
+         document.getElementById('infos-content').style.display = 'block';
+      } else {
+         document.getElementById('infos-empty').style.display = 'block';
+      }
     }, 500);
   }
 }
