@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#07070e">
 <title>BEST NEWS</title>
-<link href="[https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap](https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap)" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#07070e;--surface:#0d0d18;--s2:#121220;--s3:#1a1a2e;
@@ -255,14 +255,15 @@ textarea::placeholder{color:var(--muted)}
 
     <span class="label">Rubriques</span>
     <div class="topics-grid">
-      <div class="topic-pill selected" data-topic="tech" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Tech & IA</div><div class="topic-desc">J-7 (Joker J-30)</div></div>
-      <div class="topic-pill selected" data-topic="monde" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Monde</div><div class="topic-desc">J-7 (Joker J-30)</div></div>
-      <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">J-7 (Joker J-30)</div></div>
-      <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Commercial Tech</div><div class="topic-desc">Intensif</div></div>
+      <div class="topic-pill selected" data-topic="tech" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Tech & IA</div><div class="topic-desc">J-7 Max</div></div>
+      <div class="topic-pill selected" data-topic="monde" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Monde</div><div class="topic-desc">J-3 Max</div></div>
+      <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">J-3 Max</div></div>
+      <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Commercial Tech</div><div class="topic-desc">Sales</div></div>
+      <div class="topic-pill selected" data-topic="sport" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Sport</div><div class="topic-desc">Strict/Analyse</div></div>
       <div class="topic-pill selected" data-topic="culture" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Culture Générale</div><div class="topic-desc">Quotidien</div></div>
       <div class="topic-pill selected" data-topic="personnalite" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Figure Historique</div><div class="topic-desc">Héritage</div></div>
       <div class="topic-pill" data-topic="citation" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Citation du jour</div><div class="topic-desc">Optionnel</div></div>
-      <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Santé incluse</div></div>
+      <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Détaillé</div></div>
     </div>
 
     <span class="label">Sujet libre (optionnel)</span>
@@ -277,7 +278,7 @@ textarea::placeholder{color:var(--muted)}
     <div class="gen-sub">Clé API Google Gemini — gratuite.</div>
 
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div>Va sur <strong style="color:var(--text)">[aistudio.google.com/apikey](https://aistudio.google.com/apikey)</strong></div></div>
+      <div class="step"><div class="step-num">1</div><div>Va sur <strong style="color:var(--text)">aistudio.google.com/apikey</strong></div></div>
       <div class="step"><div class="step-num">2</div><div>Connecte-toi avec Google</div></div>
       <div class="step"><div class="step-num">3</div><div>Clique <strong style="color:var(--text)">Create API key</strong></div></div>
       <div class="step"><div class="step-num">4</div><div>Copie-colle ci-dessous</div></div>
@@ -333,8 +334,10 @@ function getPastDate(days) {
   d.setDate(d.getDate() - days);
   return d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'});
 }
+const D_J2 = getPastDate(2);
+const D_J3 = getPastDate(3);
 const D_J7 = getPastDate(7);
-const D_J30 = getPastDate(30);
+const D_J14 = getPastDate(14);
 
 // Section metadata
 const SECTION_META={
@@ -342,6 +345,7 @@ const SECTION_META={
   monde:        {icon:'🌍',name:'News Monde'},
   france:       {icon:'🇫🇷',name:'News France'},
   vocab:        {icon:'🔤',name:'Vocab Sales Tech'},
+  sport:        {icon:'⚽',name:'Sport'},
   culture:      {icon:'🧠',name:'Culture Générale'},
   personnalite: {icon:'🏛️',name:'Figure Historique'},
   citation:     {icon:'💬',name:'Citation'},
@@ -448,7 +452,7 @@ function checkCacheForTopics(){
   const notice=document.getElementById('cacheNotice');
   if(hasCached&&selected.length>0){
     notice.style.display='block';
-    notice.textContent='✓ Ces rubriques sont déjà générées pour aujourd\'hui — affichage instantané';
+    notice.textContent='✓ Ces rubriques sont déjà générées — affichage instantané';
   }else{
     notice.style.display='none';
   }
@@ -545,229 +549,294 @@ async function generateBrief(){
   },900);
 
   const now=new Date();
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
   const dateStr=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const yesterdayStr=yesterday.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
   const sectionPrompts=[];
-  
-  if(sectionsToGenerate.includes('tech'))sectionPrompts.push(`Recherche 3 vrais articles tech/IA/startups récents. Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7} jusqu'à aujourd'hui). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est un sujet d'une importance capitale dans l'industrie. STRICTEMENT AUCUN SPORT.
-Tu dois générer la clé "tech" avec ce format : [{"title":"...","link":"...","source":"...","summary":"..."}]`);
+  if(sectionsToGenerate.includes('tech'))sectionPrompts.push(`===SECTION:tech===
+Recherche 3 vrais articles tech/IA/startups publiés entre le ${D_J7} et aujourd'hui.
+Si la recherche échoue, rédige une analyse de fond.
+Format STRICT :
+ARTICLE###Titre###Source###Résumé ultra-dense 10 lignes`);
 
-  if(sectionsToGenerate.includes('monde'))sectionPrompts.push(`Recherche 3 vrais articles d'actualité internationale majeurs. Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7}). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est un événement historique/géopolitique crucial. STRICTEMENT AUCUN SPORT.
-Tu dois générer la clé "monde" avec ce format : [{"title":"...","link":"...","source":"...","summary":"..."}]`);
+  if(sectionsToGenerate.includes('monde'))sectionPrompts.push(`===SECTION:monde===
+Recherche 3 vrais articles internationaux majeurs publiés entre le ${D_J3} et aujourd'hui.
+Format STRICT :
+ARTICLE###Titre###Source###Résumé détaillé 10 lignes factuel`);
 
-  if(sectionsToGenerate.includes('france'))sectionPrompts.push(`Recherche 3 vrais articles d'actualité française majeurs (économie, politique, société). Contrainte temporelle : MAXIMUM 7 JOURS (${D_J7}). Je t'autorise 1 SEUL article joker allant jusqu'à J-30 (${D_J30}) UNIQUEMENT si c'est indispensable. STRICTEMENT AUCUN SPORT.
-Tu dois générer la clé "france" avec ce format : [{"title":"...","link":"...","source":"...","summary":"..."}]`);
+  if(sectionsToGenerate.includes('france'))sectionPrompts.push(`===SECTION:france===
+Recherche 2 vrais articles français importants publiés entre le ${D_J3} et aujourd'hui.
+Format STRICT :
+ARTICLE###Titre###Source###Résumé 10 lignes impacts concrets`);
 
-  if(sectionsToGenerate.includes('vocab'))sectionPrompts.push(`Choisis 1 expression ou terme TRES POINTU en anglais lié exclusivement au métier de Sales Tech, Software ou Business Development. FOURNIS BEAUCOUP DE DÉTAILS et de phrases d'exemple. STRICTEMENT AUCUN SPORT. Le 'scenario' DOIT obligatoirement être un exemple dense, détaillé et concret me mettant en scène (Théo, 21 ans, étudiant Neoma BS PGE, futur Sales Tech, en alternance chez Saint-Gobain Point P ou préparant son M2 double diplôme Centrale Supélec).
-Tu dois générer la clé "vocab" avec ce format : {"word":"...","type":"...","def":"...","example":"...","scenario":"..."}`);
+  if(sectionsToGenerate.includes('vocab'))sectionPrompts.push(`===SECTION:vocab===
+Terme clé B2B Sales Tech.
+Format STRICT :
+TERM###Mot###Type###Définition B2B profonde###Phrase EN###Scénario Théo (Neoma) face au terme 5 lignes`);
 
-  if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`Partage un fait de culture générale percutant (économie, géopolitique, ou histoire).
-Tu dois générer la clé "culture" avec ce format : {"text":"..."}`);
+  if(sectionsToGenerate.includes('sport'))sectionPrompts.push(`===SECTION:sport===
+Recherche scores réels d'hier (${yesterdayStr}) ou aujourd'hui. NE MENS PAS. 
+Si aucun score notable, bascule sur une analyse business/tech du sport (2 news).
+Format STRICT :
+ARTICLE###Titre de l'événement###Source###Analyse ou Score 10 lignes`);
 
-  if(sectionsToGenerate.includes('personnalite'))sectionPrompts.push(`Présente un grand stratège, une figure historique ou un leader d'entreprise inspirant pour le monde du business.
-Tu dois générer la clé "personnalite" avec ce format : {"text":"..."}`);
+  if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`===SECTION:culture===
+UN fait de culture G marquant et précis. 10 lignes denses sans fioritures.`);
 
-  if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`Donne une citation inspirante liée au dépassement de soi, à l'ambition ou à la vente stratégique.
-Tu dois générer la clé "citation" avec ce format : {"text":"...","author":"...","analysis":"..."}`);
+  if(sectionsToGenerate.includes('personnalite'))sectionPrompts.push(`===SECTION:personnalite===
+Portrait d'une personnalité historique (hors tech/biz exclusif).
+1. Qui / Contexte
+2. Accomplissement
+3. Héritage concret aujourd'hui (15 lignes total).`);
 
-  if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`Génère le VRAI horoscope du jour pour le signe Vierge. Il DOIT inclure une analyse professionnelle ET OBLIGATOIREMENT une partie "Santé / Énergie" détaillée en lien avec mes objectifs de transformation physique.
-Tu dois générer la clé "horoscope" avec ce format : {"text":"..."}`);
+  if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`===SECTION:citation===
+Citation généraliste, historique ou philosophique.
+Format STRICT :
+QUOTE###Citation###Auteur, rôle###Analyse 4 lignes de la puissance du message`);
 
-  if(hasFreeText)sectionPrompts.push(`Traite ce sujet de manière analytique et profonde : "${freeText}".
-Tu dois générer la clé "libre" avec ce format : {"text":"..."}`);
+  if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`===SECTION:horoscope===
+Recherche Horoscope Vierge du jour (${dateStr}).
+Structure OBLIGATOIRE : 1. Travail, 2. Amour, 3. Finances, 4. Perso.`);
 
-  const systemPrompt = `Tu es l'assistant de veille stratégique de Théo Poujat (21 ans, étudiant Neoma BS PGE, futur Sales Tech).
-Aujourd'hui, nous sommes le ${dateStr}.
-Tes informations doivent être factuelles, directes et pertinentes pour le monde de la tech et du business. AUCUN SUJET SPORTIF.
-Tu vas générer un SEUL objet JSON valide contenant UNIQUEMENT les clés qui te sont demandées ci-dessous.
-ATTENTION : NE METS AUCUNE BALISE MARKDOWN COMME \`\`\`json AUTOUR DE TA REPONSE. JE VEUX SEULEMENT LE TEXTE BRUT DU JSON.`;
+  if(sectionsToGenerate.includes('libre'))sectionPrompts.push(`===SECTION:libre===
+Analyse profonde pour: "${freeText}". Sois exhaustif, brutalement factuel et structuré.`);
 
-  const finalPrompt = systemPrompt + "\n\n" + sectionPrompts.join("\n\n");
+  const prompt=`Tu es le conseiller stratégique de Théo (21 ans, Neoma BS, Sales Tech B2B).
+Date: ${dateStr}.
 
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: finalPrompt }] }],
-        generationConfig: { 
-            temperature: 0.7
-        }
+RÈGLES ABSOLUES DE SURVIE DU CODE :
+1. INTERDICTION FORMELLE d'ajouter du Markdown (*, **, #) autour des balises de structure "===SECTION" ou "ARTICLE###" ou "TERM###" ou "QUOTE###". Écris les balises en texte brut absolu.
+2. Respecte la syntaxe exacte sans dévier, sinon l'application crashe.
+3. Sois dense, analytique, zéro complaisance. Aucun blabla introductif. Ne t'excuse jamais.
+
+${sectionPrompts.join('\n\n')}
+===END===`;
+
+  try{
+    // Utilisation de gemini-2.0-flash pour maximiser la robustesse de l'instruction et du Tool Use
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{temperature:0.65,maxOutputTokens:8192},
+        tools:[{google_search:{}}]
       })
     });
-
-    if (!response.ok) {
-        const errData = await response.json();
-        throw new Error("API Error: " + (errData.error?.message || response.status));
-    }
-    
-    const data = await response.json();
-    let rawText = data.candidates[0].content.parts[0].text;
-    logDebug("API JSON retourné: " + rawText);
-
-    // Nettoyage ultra-robuste au cas où l'IA remet du markdown
-    rawText = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/i, '').trim();
-
-    const newSections = JSON.parse(rawText);
-    
-    // Fusion avec le cache existant (pour ne pas perdre ce qui a déjà été généré aujourd'hui)
-    const finalSections = { ...cachedSections, ...newSections };
-    if(!hasFreeText) {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(finalSections));
-    }
-
-    renderBriefFromSections(finalSections, activeTopics);
     
     clearInterval(stepInterval);
-    document.querySelectorAll('.loading-step').forEach(s => {
-      s.classList.remove('active');
-      s.classList.add('done');
-    });
-
-  } catch (err) {
-    logDebug("Erreur fatale: " + err.message);
-    alert("Erreur lors de la génération. Va dans Config -> Active 'Debug Logs' pour voir pourquoi l'API a refusé de répondre.");
-    switchTab('generate', document.getElementById('tab-generate'));
-  } finally {
-    document.getElementById('generateBtn').disabled = false;
-    setTimeout(() => {
-      document.getElementById('infos-loading').style.display = 'none';
-      if (document.getElementById('briefSections').innerHTML !== '') {
-         document.getElementById('infos-content').style.display = 'block';
-      } else {
-         document.getElementById('infos-empty').style.display = 'block';
-      }
-    }, 500);
-  }
-}
-
-function renderBriefFromSections(data, activeKeys) {
-  const container = document.getElementById('briefSections');
-  container.innerHTML = '';
-  
-  buildFilterChips(activeKeys);
-
-  let fullTextToRead = "Bonjour Théo. Voici ton brief stratégique du jour. ";
-
-  activeKeys.forEach(key => {
-    if(!data[key]) return;
-    const meta = SECTION_META[key];
-    const content = data[key];
-
-    const sectionEl = document.createElement('div');
-    sectionEl.className = 'brief-section';
-    sectionEl.dataset.section = key;
-
-    const headerEl = document.createElement('div');
-    headerEl.className = 'section-header';
-    headerEl.innerHTML = `
-      <div class="section-icon">${meta.icon}</div>
-      <div class="section-name">${meta.name}</div>
-      <div class="section-toggle">▼</div>
-    `;
+    steps.forEach(s=>document.getElementById(s).classList.remove('active'));
     
-    const bodyEl = document.createElement('div');
-    bodyEl.className = 'section-body';
+    const data=await res.json();
+    if(!res.ok){
+      const e=data.error?.message||JSON.stringify(data.error);
+      logDebug(`Erreur API: ${res.status} - ${e}`);
+      throw new Error(`API ${res.status}: ${e}`);
+    }
+    
+    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    logDebug("Réponse brute reçue (" + text.length + " caractères).");
+    if(!text)throw new Error('Réponse vide du modèle. Réesaie.');
 
-    headerEl.onclick = () => {
-      bodyEl.classList.toggle('collapsed');
-      headerEl.querySelector('.section-toggle').classList.toggle('open');
-    };
-
-    fullTextToRead += `Rubrique ${meta.name}. `;
-
-    if(Array.isArray(content)) {
-       content.forEach(item => {
-         bodyEl.innerHTML += `
-           <div class="article-item">
-             <div class="article-top">
-               <div class="article-title">${item.title}</div>
-               ${item.link ? `<a href="${item.link}" target="_blank" class="article-link">Lire ↗</a>` : ''}
-             </div>
-             <div class="article-source">${item.source || 'News'}</div>
-             <div class="article-summary">${item.summary}</div>
-           </div>
-         `;
-         fullTextToRead += `${item.title}. ${item.summary} `;
-       });
-    } else if (key === 'vocab') {
-       bodyEl.innerHTML = `
-         <div class="vocab-word">${content.word}</div>
-         <div class="vocab-type">${content.type}</div>
-         <div class="vocab-def">${content.def}</div>
-         <div class="vocab-example">"${content.example}"</div>
-         <div class="vocab-scenario"><strong>Scenario Pro Théo :</strong><br>${content.scenario}</div>
-       `;
-       fullTextToRead += `Le terme technique du jour est ${content.word}. Définition : ${content.def}. Mise en situation dans ton quotidien : ${content.scenario}. `;
-    } else if (key === 'citation') {
-       bodyEl.innerHTML = `
-         <div class="quote-text">"${content.text}"</div>
-         <div class="quote-author">— ${content.author}</div>
-         <div class="quote-analysis">${content.analysis}</div>
-       `;
-       fullTextToRead += `Citation de ${content.author} : ${content.text}. Analyse : ${content.analysis}. `;
-    } else {
-       bodyEl.innerHTML = `<div class="simple-content"><p>${content.text}</p></div>`;
-       fullTextToRead += `${content.text} `;
+    const newSections=parseSections(text);
+    logDebug("Sections extraites: " + Object.keys(newSections).join(', '));
+    
+    if (Object.keys(newSections).length === 0) {
+       logDebug("Regex a échoué. Texte brut: \n" + text.substring(0, 500) + "...");
+       throw new Error("Le format du texte généré n'a pas pu être lu. Vérifie les logs Debug.");
     }
 
-    sectionEl.appendChild(headerEl);
-    sectionEl.appendChild(bodyEl);
-    container.appendChild(sectionEl);
-  });
+    const allSections={...cachedSections,...newSections};
+    localStorage.setItem(CACHE_KEY,JSON.stringify(allSections));
+    
+    if (hasFreeText) document.getElementById('freeTopics').value = '';
+    
+    renderBriefFromSections(allSections, activeTopics);
 
-  document.getElementById('infos-empty').style.display = 'none';
-  document.getElementById('infos-content').style.display = 'block';
-  
-  briefText = fullTextToRead;
-  
-  if(document.getElementById('autoPlayToggle').classList.contains('on')) {
-    setTimeout(playAudio, 1000);
+  }catch(err){
+    clearInterval(stepInterval);
+    document.getElementById('infos-loading').style.display='none';
+    document.getElementById('infos-empty').style.display='block';
+    document.getElementById('infos-empty').innerHTML=`
+      <div class="empty-icon">⚠</div>
+      <div class="empty-title">Échec du parsing</div>
+      <div class="empty-sub">${err.message}</div>
+      <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('settings',document.getElementById('tab-settings'))">Voir Debug →</button>`;
   }
+  document.getElementById('generateBtn').disabled=false;
 }
 
-function clearCacheAndRegenerate() {
-  if(confirm("Regénérer entièrement le brief du jour en forçant de nouvelles informations ?")) {
-    localStorage.removeItem(CACHE_KEY);
-    generateBrief();
+// ─── PARSE SECTIONS (BLINDÉ) ──────────────────────────────
+function parseSections(text){
+  const sections={};
+  // Regex permissive: autorise les espaces, ignore la casse, gère les lignes multiples
+  const re=/===SECTION:\s*(\w+)\s*===([\s\S]*?)(?====SECTION:|===END===|$)/ig;
+  let m;
+  
+  // Nettoyage de sécurité basique (au cas où le LLM s'obstine à mettre du gras)
+  let safeText = text.replace(/\*\*/g, ''); 
+  
+  while((m=re.exec(safeText))!==null){
+    const key = m[1].toLowerCase().trim();
+    sections[key] = m[2].trim();
   }
+  return sections;
+}
+
+// ─── RENDER ───────────────────────────────────────────────
+function renderBriefFromSections(sections, visibleTopics){
+  briefText='';
+  let html='';
+  const sectionKeys=Object.keys(SECTION_META).filter(k=>sections[k]);
+  buildFilterChips(sectionKeys);
+
+  let delay=0;
+  for(const[key,meta] of Object.entries(SECTION_META)){
+    const content=sections[key];
+    if(!content)continue;
+    
+    const isVisible = visibleTopics.includes(key) || key === 'libre';
+    const displayStyle=isVisible?'':'none';
+    if(isVisible) delay+=60;
+
+    if(key==='vocab'){
+      const line=content.split('\n').find(l=>l.includes('TERM###'))||content;
+      // Tolère les espaces autour des séparateurs
+      const p=line.split(/###/).map(s=>s.replace('TERM','').trim()).filter(Boolean);
+      const word=p[0]||'Mot non défini',cat=p[1]||'',def=p[2]||content,ex=p[3]||'',scenario=p[4]||'';
+      briefText+=`Vocabulaire. ${word}. ${def}. `;
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
+        <div class="section-body">
+          <div class="vocab-word">${word}</div>
+          <div class="vocab-type">${cat}</div>
+          <div class="vocab-def">${def.replace(/\n/g,'<br>')}</div>
+          ${ex?`<div class="vocab-example">"${ex}"</div>`:''}
+          ${scenario?`<div class="vocab-scenario">${scenario.replace(/\n/g,'<br>')}</div>`:''}
+        </div></div>`;
+
+    }else if(key==='citation'){
+      const line=content.split('\n').find(l=>l.includes('QUOTE###'))||content;
+      const p=line.split(/###/).map(s=>s.replace('QUOTE','').trim()).filter(Boolean);
+      const quote=p[0]||content,author=p[1]||'',analysis=p[2]||'';
+      briefText+=`Citation. ${quote} — ${author}. `;
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
+        <div class="section-body">
+          <div class="quote-text">"${quote}"</div>
+          <div class="quote-author">— ${author}</div>
+          ${analysis?`<div class="quote-analysis">${analysis.replace(/\n/g,'<br>')}</div>`:''}
+        </div></div>`;
+
+    }else if(key==='horoscope'||key==='culture'||key==='libre'||key==='personnalite'){
+      const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
+      briefText+=`${meta.name}. ${content.replace(/\n/g,' ')} `;
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
+        <div class="section-body"><div class="simple-content">${paras}</div></div></div>`;
+
+    }else{
+      const lines=content.split('\n');
+      let articlesHtml='';let hasArticles=false;
+      for(const line of lines){
+        if(!line.includes('ARTICLE###'))continue;
+        hasArticles=true;
+        const p=line.split(/###/).map(s=>s.replace('ARTICLE','').trim()).filter(Boolean);
+        const title=p[0]||'',source=p[1]||'',summary=p[2]||p[3]||'';
+        if(!title)continue;
+        briefText+=`${title}. ${summary} `;
+        const searchUrl=`https://news.google.com/search?q=${encodeURIComponent(title+(source?' '+source:''))}&hl=fr`;
+        articlesHtml+=`<div class="article-item">
+          <div class="article-top">
+            <div class="article-title">${title}</div>
+            <a href="${searchUrl}" target="_blank" rel="noopener" class="article-link">Lire →</a>
+          </div>
+          ${source?`<div class="article-source">${source}</div>`:''}
+          ${summary?`<div class="article-summary">${summary.replace(/\n/g,'<br>')}</div>`:''}
+        </div>`;
+      }
+      if(!hasArticles){
+        const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
+        briefText+=content.replace(/\n/g,' ')+' ';
+        html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+          ${sectionHeader(meta,'open')}
+          <div class="section-body"><div class="simple-content">${paras}</div></div></div>`;
+        continue;
+      }
+      html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
+        ${sectionHeader(meta,'open')}
+        <div class="section-body">${articlesHtml}</div></div>`;
+    }
+  }
+
+  document.getElementById('briefSections').innerHTML=html||'<p style="color:var(--muted);padding:16px">Format inattendu.</p>';
+  document.getElementById('infos-loading').style.display='none';
+  document.getElementById('infos-empty').style.display='none';
+  document.getElementById('infos-content').style.display='block';
+
+  if(document.getElementById('autoPlayToggle').classList.contains('on'))setTimeout(startAudio,800);
+}
+
+function sectionHeader(meta,state){
+  return `<div class="section-header" onclick="toggleSection(this)">
+    <div class="section-icon">${meta.icon}</div>
+    <div class="section-name">${meta.name}</div>
+    <div class="section-toggle ${state==='open'?'open':''}">▾</div>
+  </div>`;
+}
+
+function toggleSection(headerEl){
+  const body=headerEl.nextElementSibling;
+  const toggle=headerEl.querySelector('.section-toggle');
+  body.classList.toggle('collapsed');
+  toggle.classList.toggle('open');
+}
+
+// ─── CLEAR CACHE ──────────────────────────────────────────
+function clearCacheAndRegenerate(){
+  localStorage.removeItem(CACHE_KEY);
+  document.getElementById('infos-content').style.display='none';
+  document.getElementById('infos-empty').style.display='block';
+  document.getElementById('infos-empty').innerHTML=`
+    <div class="empty-icon">✦</div>
+    <div class="empty-title">Cache effacé</div>
+    <div class="empty-sub">Sélectionne tes rubriques<br>et génère un nouveau brief.</div>
+    <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('generate',document.getElementById('tab-generate'))">Générer →</button>`;
+  switchTab('generate',document.getElementById('tab-generate'));
 }
 
 // ─── AUDIO ────────────────────────────────────────────────
-function toggleAudio() {
-  if(isSpeaking) stopAudio();
-  else playAudio();
+function toggleAudio(){isSpeaking?stopAudio():startAudio();}
+
+function startAudio(){
+  if(!briefText)return;
+  stopAudio();
+  const utt=new SpeechSynthesisUtterance(briefText);
+  if(frVoice)utt.voice=frVoice;
+  utt.lang='fr-FR';utt.rate=currentSpeed;utt.pitch=1.05;
+  utt.onend=()=>{isSpeaking=false;document.getElementById('audioBtn').textContent='▶';document.getElementById('audioTrack').textContent='Terminé';};
+  window.speechSynthesis.speak(utt);
+  isSpeaking=true;
+  document.getElementById('audioBtn').textContent='⏸';
+  document.getElementById('audioTrack').textContent='Lecture en cours…';
 }
 
-function playAudio() {
-  if(!briefText || !('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(briefText);
-  if(frVoice) u.voice = frVoice;
-  u.rate = currentSpeed;
-  u.onstart = () => { isSpeaking=true; document.getElementById('audioBtn').innerHTML='■'; document.getElementById('audioBtn').style.borderRadius='8px'; };
-  u.onend = () => { isSpeaking=false; document.getElementById('audioBtn').innerHTML='▶'; document.getElementById('audioBtn').style.borderRadius='50%'; };
-  u.onerror = () => { isSpeaking=false; document.getElementById('audioBtn').innerHTML='▶'; document.getElementById('audioBtn').style.borderRadius='50%'; };
-  window.speechSynthesis.speak(u);
+function stopAudio(){
+  window.speechSynthesis.cancel();isSpeaking=false;
+  document.getElementById('audioBtn').textContent='▶';
+  document.getElementById('audioTrack').textContent='Brief prêt';
 }
 
-function stopAudio() {
-  window.speechSynthesis.cancel();
-  isSpeaking = false;
-  document.getElementById('audioBtn').innerHTML='▶';
-  document.getElementById('audioBtn').style.borderRadius='50%';
+function cycleSpeed(){
+  const i=speeds.indexOf(currentSpeed);
+  currentSpeed=speeds[(i+1)%speeds.length];
+  document.getElementById('speedBtn').textContent=currentSpeed+'×';
+  if(isSpeaking){stopAudio();startAudio();}
 }
 
-function cycleSpeed() {
-  let idx = speeds.indexOf(currentSpeed);
-  idx = (idx+1)%speeds.length;
-  currentSpeed = speeds[idx];
-  document.getElementById('speedBtn').textContent = currentSpeed+'×';
-  if(isSpeaking) playAudio(); 
-}
-
-// BOOT
-window.onload = init;
+// ─── START ────────────────────────────────────────────────
+window.addEventListener('load',init);
 </script>
 </body>
 </html>
