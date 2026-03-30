@@ -111,7 +111,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .quote-author{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:13px;letter-spacing:.05em}
 .quote-analysis{font-size:13px;line-height:1.7;color:var(--muted2)}
 
-/* HOROSCOPE / CULTURE */
+/* HOROSCOPE / CULTURE / LIBRE */
 .simple-content p{margin-bottom:10px;font-size:14px;line-height:1.75}
 .simple-content p:last-child{margin-bottom:0}
 
@@ -173,19 +173,17 @@ textarea::placeholder{color:var(--muted)}
 </head>
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
-  <div class="splash-logo">THÉO</div>
+  <div class="splash-logo">BEST NEWS</div>
   <div class="splash-line"></div>
   <div class="splash-date" id="splashDate"></div>
   <div class="splash-streak" id="splashStreak"></div>
 </div>
 
-<!-- APP -->
 <div class="app" id="app">
   <div class="header">
     <div class="header-left">
-      <div class="logo">THÉO</div>
+      <div class="logo">BEST NEWS</div>
       <div class="header-meta">
         <div class="streak-badge" id="streakBadge"></div>
       </div>
@@ -206,7 +204,6 @@ textarea::placeholder{color:var(--muted)}
     <button class="tab" id="tab-settings" onclick="switchTab('settings',this)">⚙ Config</button>
   </div>
 
-  <!-- INFOS PAGE -->
   <div class="page active" id="page-infos">
     <div id="infos-empty" class="empty-state">
       <div class="empty-icon">✦</div>
@@ -249,31 +246,29 @@ textarea::placeholder{color:var(--muted)}
     </div>
   </div>
 
-  <!-- GENERATE PAGE -->
   <div class="page" id="page-generate">
     <div class="gen-title">Ton brief,<br>tes règles.</div>
     <div class="gen-sub">Sélectionne les rubriques et génère ton brief du jour.</div>
 
     <span class="label">Rubriques</span>
     <div class="topics-grid">
-      <div class="topic-pill selected" data-topic="tech" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Tech & IA</div><div class="topic-desc">Quotidien</div></div>
-      <div class="topic-pill selected" data-topic="monde" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Monde</div><div class="topic-desc">Quotidien</div></div>
-      <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">Optionnel</div></div>
+      <div class="topic-pill selected" data-topic="tech" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Tech & IA</div><div class="topic-desc">J-7 Max</div></div>
+      <div class="topic-pill selected" data-topic="monde" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">News Monde</div><div class="topic-desc">J-3 Max</div></div>
+      <div class="topic-pill" data-topic="france" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">News France</div><div class="topic-desc">J-3 Max</div></div>
       <div class="topic-pill selected" data-topic="vocab" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Vocab Commercial Tech</div><div class="topic-desc">Sales</div></div>
-      <div class="topic-pill selected" data-topic="sport" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Sport</div><div class="topic-desc">Résultats + News</div></div>
+      <div class="topic-pill selected" data-topic="sport" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Sport</div><div class="topic-desc">Strict/Analyse</div></div>
       <div class="topic-pill selected" data-topic="culture" onclick="toggleTopic(this)"><div class="check">✓</div><div class="topic-name">Culture Générale</div><div class="topic-desc">Quotidien</div></div>
       <div class="topic-pill" data-topic="citation" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Citation du jour</div><div class="topic-desc">Optionnel</div></div>
-      <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Optionnel</div></div>
+      <div class="topic-pill" data-topic="horoscope" onclick="toggleTopic(this)"><div class="check"></div><div class="topic-name">Horoscope Vierge</div><div class="topic-desc">Détaillé</div></div>
     </div>
 
     <span class="label">Sujet libre (optionnel)</span>
-    <textarea id="freeTopics" placeholder="Ex: Dernières news sur OpenAI o3 ? Comment fonctionne le RAG ? Résultats PSG ?"></textarea>
+    <textarea id="freeTopics" placeholder="Ex: Analyse de la stratégie d'Apple ? Derniers deals majeurs SaaS ?"></textarea>
 
     <button class="btn-primary" id="generateBtn" onclick="generateBrief()">Générer mon brief →</button>
     <div class="cache-notice" id="cacheNotice" style="display:none"></div>
   </div>
 
-  <!-- CONFIG PAGE -->
   <div class="page" id="page-settings">
     <div class="gen-title">Configuration</div>
     <div class="gen-sub">Clé API Google Gemini — gratuite.</div>
@@ -313,6 +308,17 @@ const speeds=[1,1.25,1.5,2];
 const TODAY=new Date().toISOString().slice(0,10);
 const CACHE_KEY='theo_sections_'+TODAY;
 
+// Calcul des dates dynamiques pour forcer la main au modèle
+function getPastDate(days) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'});
+}
+const D_J2 = getPastDate(2);
+const D_J3 = getPastDate(3);
+const D_J7 = getPastDate(7);
+const D_J14 = getPastDate(14);
+
 // Section metadata — display order
 const SECTION_META={
   tech:    {icon:'⚡',name:'Tech & IA'},
@@ -323,6 +329,7 @@ const SECTION_META={
   culture: {icon:'🧠',name:'Culture Générale'},
   citation:{icon:'💬',name:'Citation'},
   horoscope:{icon:'♍',name:'Horoscope Vierge'},
+  libre:   {icon:'🎯',name:'Sujet Libre'}
 };
 
 // ─── INIT ─────────────────────────────────────────────────
@@ -333,10 +340,8 @@ function init(){
   document.getElementById('briefDate').textContent=dateStr;
   document.getElementById('splashDate').textContent=dateStr;
 
-  // Streak
   updateStreak();
 
-  // Splash
   setTimeout(()=>{
     document.getElementById('splash').classList.add('out');
     setTimeout(()=>{
@@ -345,10 +350,8 @@ function init(){
     },700);
   },1800);
 
-  // Load saved key
   loadApiKey();
 
-  // Load voice
   if('speechSynthesis' in window){
     const tryVoice=()=>{
       const voices=window.speechSynthesis.getVoices();
@@ -360,16 +363,15 @@ function init(){
     window.speechSynthesis.onvoiceschanged=tryVoice;
   }
 
-  // Weather
   if(navigator.geolocation&&localStorage.getItem('theo_weather')!=='off'){
     navigator.geolocation.getCurrentPosition(fetchWeather,()=>{});
   }
 
-  // Check today's cache
   const cached=localStorage.getItem(CACHE_KEY);
   if(cached){
     try{
       const sections=JSON.parse(cached);
+      // Ensure the UI recognizes the cache state properly on startup
       renderBriefFromSections(sections, Object.keys(sections));
     }catch(e){}
   }
@@ -380,7 +382,7 @@ function updateStreak(){
   let streak=JSON.parse(localStorage.getItem('theo_streak')||'{"count":0,"last":""}');
   const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
   const yd=yesterday.toISOString().slice(0,10);
-  if(streak.last===TODAY){/* same day, no change */}
+  if(streak.last===TODAY){/* same day */}
   else if(streak.last===yd){streak.count++;streak.last=TODAY;}
   else{streak.count=1;streak.last=TODAY;}
   localStorage.setItem('theo_streak',JSON.stringify(streak));
@@ -398,12 +400,10 @@ async function fetchWeather(pos){
     const code=d.current_weather?.weathercode||0;
     const temp=Math.round(d.current_weather?.temperature||0);
     const icons={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',61:'🌧',71:'🌨',80:'🌦',95:'⛈'};
-    const descs={0:'Clair',1:'Peu nuageux',2:'Nuageux',3:'Couvert',45:'Brouillard',51:'Bruine',61:'Pluie',71:'Neige',80:'Averses',95:'Orage'};
-    const icon=icons[code]||'🌡';
-    const desc=descs[code]||'';
-    document.getElementById('weatherIcon').textContent=icon;
+    const descs={0:'Clair',1:'Peu',2:'Nuages',3:'Couvert',45:'Brouillard',51:'Bruine',61:'Pluie',71:'Neige',80:'Averses',95:'Orage'};
+    document.getElementById('weatherIcon').textContent=icons[code]||'🌡';
     document.getElementById('weatherTemp').textContent=temp+'°C';
-    document.getElementById('weatherDesc').textContent=desc;
+    document.getElementById('weatherDesc').textContent=descs[code]||'';
     document.getElementById('weatherWidget').style.display='flex';
   }catch(e){}
 }
@@ -432,7 +432,7 @@ function checkCacheForTopics(){
   const notice=document.getElementById('cacheNotice');
   if(hasCached&&selected.length>0){
     notice.style.display='block';
-    notice.textContent='✓ Ces rubriques sont déjà générées — affichage instantané';
+    notice.textContent='✓ Ces rubriques sont déjà générées — affichage instantané (Sujet libre en supplément)';
   }else{
     notice.style.display='none';
   }
@@ -458,7 +458,6 @@ function loadApiKey(){
 function buildFilterChips(sectionKeys){
   const container=document.getElementById('sectionFilter');
   container.innerHTML='';
-  // All chip
   const allChip=document.createElement('div');
   allChip.className='filter-chip active';
   allChip.textContent='Tout';
@@ -492,16 +491,25 @@ async function generateBrief(){
   const topics=[...document.querySelectorAll('.topic-pill.selected')].map(p=>p.dataset.topic);
   if(!topics.length){alert('Sélectionne au moins une rubrique.');return;}
 
-  // Check cache — load cached sections, only generate missing ones
   let cachedSections={};
   const rawCache=localStorage.getItem(CACHE_KEY);
   if(rawCache){try{cachedSections=JSON.parse(rawCache);}catch(e){}}
-  const missingSections=topics.filter(t=>!cachedSections[t]);
+  
   const freeText=document.getElementById('freeTopics').value.trim();
+  const hasFreeText = freeText.length > 0;
+  
+  // LOGIQUE DE CACHE CORRIGÉE : On ne demande QUE ce qui manque, on n'écrase pas le reste.
+  const missingSections=topics.filter(t=>!cachedSections[t]);
+  const sectionsToGenerate = [...missingSections];
+  
+  // On ajoute le sujet libre comme une section indépendante s'il est rempli
+  if (hasFreeText) sectionsToGenerate.push('libre');
 
-  // If all sections cached, just display
-  if(missingSections.length===0&&!freeText){
-    renderBriefFromSections(cachedSections, topics);
+  let activeTopics = [...topics];
+  if (hasFreeText && !activeTopics.includes('libre')) activeTopics.push('libre');
+
+  if(sectionsToGenerate.length===0){
+    renderBriefFromSections(cachedSections, activeTopics);
     switchTab('infos',document.getElementById('tab-infos'));
     return;
   }
@@ -512,7 +520,6 @@ async function generateBrief(){
   document.getElementById('infos-loading').style.display='block';
   document.getElementById('infos-content').style.display='none';
 
-  // Animate steps
   const steps=['step1','step2','step3','step4'];
   let si=0;
   const stepInterval=setInterval(()=>{
@@ -526,60 +533,58 @@ async function generateBrief(){
   const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
   const dateStr=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const yesterdayStr=yesterday.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const extra=freeText?`\n\nSujets libres demandés par Théo (traite-les avec autant de soin que les autres rubriques, infos vérifiées, dense, complet) :\n${freeText}`:'';
-
-  const sectionsToGenerate=freeText?topics:missingSections;
 
   const sectionPrompts=[];
   if(sectionsToGenerate.includes('tech'))sectionPrompts.push(`===SECTION:tech===
-Utilise Google Search. Trouve 3 vrais articles RÉCENTS (cette semaine) sur la tech, l'IA, les startups, big tech.
+Utilise Google Search. Trouve 3 vrais articles sur la tech, l'IA, les startups, publiés STRICTEMENT entre le ${D_J7} et aujourd'hui.
 Ne cite QUE ce que tu as réellement trouvé. Format par article :
-ARTICLE###[Titre exact trouvé]###[Média]###[Résumé 10-15 lignes : contexte, acteurs, chiffres, enjeux, pourquoi c'est important maintenant]`);
+ARTICLE###[Titre exact trouvé]###[Média]###[Résumé détaillé 10-15 lignes : contexte, acteurs, chiffres, enjeux stratégiques]`);
 
   if(sectionsToGenerate.includes('monde'))sectionPrompts.push(`===SECTION:monde===
-Utilise Google Search. Trouve 3 vrais articles internationaux majeurs de cette semaine.
-ARTICLE###[Titre exact]###[Média]###[Résumé 10-15 lignes : faits précis, acteurs nommés, chiffres, enjeux géopolitiques ou économiques]`);
+Utilise Google Search. Trouve 3 vrais articles internationaux majeurs publiés STRICTEMENT entre le ${D_J3} et aujourd'hui. Ne mentionne un événement du ${D_J14} que si c'est obligatoire pour contextualiser l'actualité du jour.
+ARTICLE###[Titre exact]###[Média]###[Résumé détaillé 10-15 lignes : faits précis, acteurs nommés, chiffres, enjeux géopolitiques]`);
 
   if(sectionsToGenerate.includes('france'))sectionPrompts.push(`===SECTION:france===
-Utilise Google Search. Trouve 2 vrais articles français importants de cette semaine.
-ARTICLE###[Titre exact]###[Média]###[Résumé 10-15 lignes : faits, acteurs, impact concret en France]`);
+Utilise Google Search. Trouve 2 vrais articles français importants publiés STRICTEMENT entre le ${D_J3} et aujourd'hui.
+ARTICLE###[Titre exact]###[Média]###[Résumé détaillé 10-15 lignes : faits, acteurs, impact concret]`);
 
   if(sectionsToGenerate.includes('vocab'))sectionPrompts.push(`===SECTION:vocab===
-Terme anglais clé du monde commercial tech / sales B2B. Exemples de domaines : méthodes de vente, CRM, MEDDIC, SPIN Selling, account-based selling, SDR/AE, outbound, inbound, pipeline, ARR, churn, NRR, etc.
+Terme anglais clé du monde commercial tech / sales B2B.
 Format STRICT :
-TERM###[Mot]###[Cat. grammaticale]###[Définition profonde 8-10 lignes en français : concept, origine, usage dans le métier sales tech, pourquoi indispensable]###[Exemple phrase anglaise professionnelle]###[Scénario concret 4-5 lignes : situation réaliste en entreprise tech]`);
+TERM###[Mot]###[Cat. grammaticale]###[Définition profonde 8-10 lignes]###[Exemple phrase anglaise pro]###[Scénario concret 5-6 lignes : mets Théo (étudiant à Neoma ciblant un rôle Sales Tech) en situation réelle d'entreprise face à ce terme, sois pointu]`);
 
   if(sectionsToGenerate.includes('sport'))sectionPrompts.push(`===SECTION:sport===
-Utilise Google Search OBLIGATOIREMENT. Date d'hier : ${yesterdayStr}. Date du jour : ${dateStr}.
-Cherche les résultats et news dans ces sports : football (Ligue 1, Champions League, Premier League, Liga, matchs PSG), basket (NBA, Betclic Élite), rugby (Top 14, Champions Cup), tennis (uniquement Masters 1000 et Grand Chelem).
-Pour chaque sport avec résultat ou news important :
-ARTICLE###[Description claire : ex "PSG 2-1 Monaco — Ligue 1" ou "Résultats NBA nuit du 29 mars"]###[Source]###[Résumé 6-10 lignes : scores, performances notables, contexte classement, incidents marquants, ou news importante si pas de match]
-Couvre aussi toute grosse news dans d'autres sports si événement majeur.`);
+Utilise Google Search OBLIGATOIREMENT. Recherche EXCLUSIVEMENT pour hier (${yesterdayStr}) et aujourd'hui (${dateStr}). 
+RÈGLE ABSOLUE : NE MENS PAS SUR LES SCORES. S'il n'y a pas de match officiel (foot, basket, rugby), n'invente rien.
+Construis ta réponse en deux parties :
+1. RÉSULTATS : Les vrais scores de la veille ou du jour (si applicables).
+2. NEWS DE FOND : S'il n'y a pas de scores pertinents, fournis 2 actualités de fond : business et finance des clubs (dette, rachat), ou tech dans le sport.
+ARTICLE###[Titre clair]###[Source]###[Résumé riche 10 lignes : enjeux financiers, tech, classement ou histoire]`);
 
   if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`===SECTION:culture===
-UN fait de culture générale vérifiable, précis, peu connu mais important. Histoire, science, économie, géographie, ou lié à l'actualité récente. Pas de généralité. 8-10 lignes : le fait, son contexte historique ou scientifique, pourquoi c'est important à savoir.`);
+UN fait de culture générale vérifiable, précis et peu connu. Histoire, économie ou lié à l'actualité. 10 lignes détaillées.`);
 
   if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`===SECTION:citation===
-UNE citation forte vérifiée (vérifie via Search que l'attribution est correcte). Business, leadership, tech ou vente.
-QUOTE###[Citation langue originale]###[Prénom Nom, rôle/entreprise]###[Analyse 4-5 lignes : ce qu'elle apprend, pourquoi elle est puissante aujourd'hui]`);
+UNE citation forte vérifiée (vérifie via Search). Business, tech ou vente.
+QUOTE###[Citation]###[Prénom Nom, rôle]###[Analyse stratégique 4-5 lignes]`);
 
   if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`===SECTION:horoscope===
-Utilise Google Search pour trouver le VRAI horoscope Vierge du jour (${dateStr}). Cherche "horoscope vierge ${dateStr}" ou "horoscope vierge aujourd'hui". Cite la source trouvée. Résume le vrai horoscope en 4-5 lignes concrètes. Si introuvable, dis-le clairement.`);
+Utilise Google Search pour trouver l'horoscope Vierge du jour (${dateStr}). Utilise TOUJOURS une seule source fiable (ex: "RTL"). N'invente rien.
+Tu DOIS structurer ta réponse en 4 points détaillés : 1. Travail, 2. Amour, 3. Finances, 4. Personnel.`);
 
-  const prompt=`Tu es le rédacteur d'un brief matinal premium pour Théo, 21 ans, étudiant Grande École (Neoma Business School), en stage chef de projet digital, passionné de tech, business et vente.
+  if(sectionsToGenerate.includes('libre'))sectionPrompts.push(`===SECTION:libre===
+Réponds avec un niveau de détail extrême et une vraie profondeur d'analyse au sujet demandé par Théo : "${freeText}".
+Utilise des faits, des exemples concrets, sois direct, exhaustif et ne tourne pas autour du pot. Structure ta réponse en paragraphes clairs.`);
 
+  const prompt=`Tu es le conseiller stratégique et rédacteur d'un brief matinal premium pour Théo (21 ans, étudiant Neoma Business School, passionné de tech et de vente B2B).
 Date du jour : ${dateStr}
-Date d'hier : ${yesterdayStr}${extra}
 
 RÈGLES ABSOLUES :
-- Utilise Google Search pour TOUTES les rubriques news/sport/horoscope. Ne génère pas de fausses infos.
-- Ton : direct, dense, intelligent. Zéro formule creuse. Des faits, des noms, des chiffres.
-- Langue : français sauf vocab (anglais). Contenu long et riche.
-- Respecte EXACTEMENT les formats demandés — l'appli parse automatiquement.
-- Pour les ARTICLE### : ne mets pas de sauts de ligne à l'intérieur d'une ligne.
+- Utilise Google Search pour TOUTES les infos. Tolérance zéro sur les hallucinations.
+- Ton : direct, brutalement honnête, analytique, dense. Zéro complaisance.
+- Respecte les marqueurs (ARTICLE###, TERM###, QUOTE###) sans insérer de sauts de ligne intempestifs.
 
 ${sectionPrompts.join('\n\n')}
-
 ===END===`;
 
   try{
@@ -595,15 +600,19 @@ ${sectionPrompts.join('\n\n')}
     clearInterval(stepInterval);
     steps.forEach(s=>document.getElementById(s).classList.remove('active'));
     const data=await res.json();
-    if(!res.ok){const e=data.error?.message||JSON.stringify(data.error)||'Erreur';throw new Error(`API ${res.status}: ${e}`);}
+    if(!res.ok){const e=data.error?.message||JSON.stringify(data.error);throw new Error(`API ${res.status}: ${e}`);}
     const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-    if(!text)throw new Error('Réponse vide de Gemini');
+    if(!text)throw new Error('Réponse vide');
 
-    // Parse and merge with cached sections
     const newSections=parseSections(text);
+    // Fusion du cache (on conserve intactes les rubriques déjà générées le matin)
     const allSections={...cachedSections,...newSections};
-    if(!freeText)localStorage.setItem(CACHE_KEY,JSON.stringify(allSections));
-    renderBriefFromSections(allSections, topics);
+    localStorage.setItem(CACHE_KEY,JSON.stringify(allSections));
+    
+    // Nettoyage de l'input texte si réussi
+    if (hasFreeText) document.getElementById('freeTopics').value = '';
+    
+    renderBriefFromSections(allSections, activeTopics);
 
   }catch(err){
     clearInterval(stepInterval);
@@ -612,7 +621,7 @@ ${sectionPrompts.join('\n\n')}
     document.getElementById('infos-empty').innerHTML=`
       <div class="empty-icon">⚠</div>
       <div class="empty-title">Erreur</div>
-      <div class="empty-sub">${err.message}<br><br>Vérifie ta clé dans Config.</div>
+      <div class="empty-sub">${err.message}</div>
       <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('settings',document.getElementById('tab-settings'))">Config →</button>`;
   }
   document.getElementById('generateBtn').disabled=false;
@@ -638,9 +647,11 @@ function renderBriefFromSections(sections, visibleTopics){
   for(const[key,meta] of Object.entries(SECTION_META)){
     const content=sections[key];
     if(!content)continue;
-    const isVisible=visibleTopics.includes(key);
+    
+    // Forcer l'affichage de "libre" s'il est présent dans le cache, même s'il n'est pas dans visibleTopics (car c'est un input dynamique)
+    const isVisible = visibleTopics.includes(key) || key === 'libre';
     const displayStyle=isVisible?'':'none';
-    delay+=60;
+    if(isVisible) delay+=60;
 
     if(key==='vocab'){
       const line=content.split('\n').find(l=>l.startsWith('TERM###'))||content;
@@ -670,7 +681,7 @@ function renderBriefFromSections(sections, visibleTopics){
           ${analysis?`<div class="quote-analysis">${analysis.replace(/\n/g,'<br>')}</div>`:''}
         </div></div>`;
 
-    }else if(key==='horoscope'||key==='culture'){
+    }else if(key==='horoscope'||key==='culture'||key==='libre'){
       const paras=content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
       briefText+=`${meta.name}. ${content.replace(/\n/g,' ')} `;
       html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
@@ -678,7 +689,6 @@ function renderBriefFromSections(sections, visibleTopics){
         <div class="section-body"><div class="simple-content">${paras}</div></div></div>`;
 
     }else{
-      // News / Sport — ARTICLE lines
       const lines=content.split('\n');
       let articlesHtml='';let hasArticles=false;
       for(const line of lines){
@@ -712,7 +722,7 @@ function renderBriefFromSections(sections, visibleTopics){
     }
   }
 
-  document.getElementById('briefSections').innerHTML=html||'<p style="color:var(--muted);padding:16px">Format inattendu — réessaie.</p>';
+  document.getElementById('briefSections').innerHTML=html||'<p style="color:var(--muted);padding:16px">Format inattendu.</p>';
   document.getElementById('infos-loading').style.display='none';
   document.getElementById('infos-empty').style.display='none';
   document.getElementById('infos-content').style.display='block';
