@@ -169,9 +169,6 @@ textarea::placeholder{color:var(--muted)}
 .steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
 .step{display:flex;gap:11px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--muted)}
 .step-num{font-family:'DM Mono',monospace;font-size:10px;background:var(--accent);color:#07070e;min-width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-weight:500}
-
-/* LOGS (DEV) */
-#devLogs {font-family: monospace; font-size: 10px; color: #888; background: #000; padding: 10px; display: none; margin-top: 20px; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto;}
 </style>
 </head>
 <body>
@@ -217,12 +214,12 @@ textarea::placeholder{color:var(--muted)}
 
     <div id="infos-loading" class="loading-state" style="display:none">
       <div class="spinner"></div>
-      <div class="loading-text">Analyse stratégique en cours…</div>
+      <div class="loading-text">Génération en cours…</div>
       <div class="loading-steps">
-        <div class="loading-step" id="step1">01 — Accès aux données globales</div>
-        <div class="loading-step" id="step2">02 — Recherche temps réel</div>
-        <div class="loading-step" id="step3">03 — Synthèse et formatage</div>
-        <div class="loading-step" id="step4">04 — Finalisation du rendu</div>
+        <div class="loading-step" id="step1">01 — Connexion à Gemini</div>
+        <div class="loading-step" id="step2">02 — Recherche actualités</div>
+        <div class="loading-step" id="step3">03 — Compilation du brief</div>
+        <div class="loading-step" id="step4">04 — Finalisation</div>
       </div>
     </div>
 
@@ -301,11 +298,6 @@ textarea::placeholder{color:var(--muted)}
         <div><div class="setting-label">Météo</div><div class="setting-desc">Affiche la météo dans l'en-tête</div></div>
         <div class="toggle on" id="weatherToggle" onclick="this.classList.toggle('on')"></div>
       </div>
-      <div class="setting-row">
-        <div><div class="setting-label">Debug Logs</div><div class="setting-desc">Afficher les erreurs brutes</div></div>
-        <div class="toggle" id="debugToggle" onclick="toggleDebug(this)"></div>
-      </div>
-      <div id="devLogs">Logs vides.</div>
     </div>
   </div>
 </div>
@@ -317,18 +309,7 @@ const speeds=[1,1.25,1.5,2];
 const TODAY=new Date().toISOString().slice(0,10);
 const CACHE_KEY='theo_sections_'+TODAY;
 
-function toggleDebug(el) {
-  el.classList.toggle('on');
-  document.getElementById('devLogs').style.display = el.classList.contains('on') ? 'block' : 'none';
-}
-
-function logDebug(msg) {
-  const d = document.getElementById('devLogs');
-  d.textContent += `\n[${new Date().toLocaleTimeString()}] ` + msg;
-  d.scrollTop = d.scrollHeight;
-}
-
-// Calcul des dates dynamiques
+// Calcul des dates dynamiques pour forcer la main au modèle
 function getPastDate(days) {
   const d = new Date();
   d.setDate(d.getDate() - days);
@@ -339,7 +320,7 @@ const D_J3 = getPastDate(3);
 const D_J7 = getPastDate(7);
 const D_J14 = getPastDate(14);
 
-// Section metadata
+// Section metadata — display order
 const SECTION_META={
   tech:         {icon:'⚡',name:'Tech & IA'},
   monde:        {icon:'🌍',name:'News Monde'},
@@ -452,7 +433,7 @@ function checkCacheForTopics(){
   const notice=document.getElementById('cacheNotice');
   if(hasCached&&selected.length>0){
     notice.style.display='block';
-    notice.textContent='✓ Ces rubriques sont déjà générées — affichage instantané';
+    notice.textContent='✓ Ces rubriques sont déjà générées — affichage instantané (Sujet libre en supplément)';
   }else{
     notice.style.display='none';
   }
@@ -537,7 +518,6 @@ async function generateBrief(){
   document.getElementById('infos-empty').style.display='none';
   document.getElementById('infos-loading').style.display='block';
   document.getElementById('infos-content').style.display='none';
-  logDebug("Début génération pour: " + sectionsToGenerate.join(', '));
 
   const steps=['step1','step2','step3','step4'];
   let si=0;
@@ -555,66 +535,65 @@ async function generateBrief(){
 
   const sectionPrompts=[];
   if(sectionsToGenerate.includes('tech'))sectionPrompts.push(`===SECTION:tech===
-Recherche 3 vrais articles tech/IA/startups publiés entre le ${D_J7} et aujourd'hui.
-Si la recherche échoue, rédige une analyse de fond.
-Format STRICT :
-ARTICLE###Titre###Source###Résumé ultra-dense 10 lignes`);
+Utilise Google Search. Trouve 3 vrais articles sur la tech, l'IA, les startups, publiés STRICTEMENT entre le ${D_J7} et aujourd'hui.
+Ne cite QUE ce que tu as réellement trouvé. Format par article :
+ARTICLE###[Titre exact trouvé]###[Média]###[Résumé détaillé 10-15 lignes : contexte, acteurs, chiffres, enjeux stratégiques]`);
 
   if(sectionsToGenerate.includes('monde'))sectionPrompts.push(`===SECTION:monde===
-Recherche 3 vrais articles internationaux majeurs publiés entre le ${D_J3} et aujourd'hui.
-Format STRICT :
-ARTICLE###Titre###Source###Résumé détaillé 10 lignes factuel`);
+Utilise Google Search. Trouve 3 vrais articles internationaux majeurs publiés STRICTEMENT entre le ${D_J3} et aujourd'hui. Ne mentionne un événement du ${D_J14} que si c'est obligatoire pour contextualiser l'actualité du jour.
+ARTICLE###[Titre exact]###[Média]###[Résumé détaillé 10-15 lignes : faits précis, acteurs nommés, chiffres, enjeux géopolitiques]`);
 
   if(sectionsToGenerate.includes('france'))sectionPrompts.push(`===SECTION:france===
-Recherche 2 vrais articles français importants publiés entre le ${D_J3} et aujourd'hui.
-Format STRICT :
-ARTICLE###Titre###Source###Résumé 10 lignes impacts concrets`);
+Utilise Google Search. Trouve 2 vrais articles français importants publiés STRICTEMENT entre le ${D_J3} et aujourd'hui.
+ARTICLE###[Titre exact]###[Média]###[Résumé détaillé 10-15 lignes : faits, acteurs, impact concret]`);
 
   if(sectionsToGenerate.includes('vocab'))sectionPrompts.push(`===SECTION:vocab===
-Terme clé B2B Sales Tech.
+Terme anglais clé du monde commercial tech / sales B2B.
 Format STRICT :
-TERM###Mot###Type###Définition B2B profonde###Phrase EN###Scénario Théo (Neoma) face au terme 5 lignes`);
+TERM###[Mot]###[Cat. grammaticale]###[Définition profonde 8-10 lignes]###[Exemple phrase anglaise pro]###[Scénario concret 5-6 lignes : mets Théo (étudiant à Neoma ciblant un rôle Sales Tech) en situation réelle d'entreprise face à ce terme, sois pointu]`);
 
   if(sectionsToGenerate.includes('sport'))sectionPrompts.push(`===SECTION:sport===
-Recherche scores réels d'hier (${yesterdayStr}) ou aujourd'hui. NE MENS PAS. 
-Si aucun score notable, bascule sur une analyse business/tech du sport (2 news).
-Format STRICT :
-ARTICLE###Titre de l'événement###Source###Analyse ou Score 10 lignes`);
+Utilise Google Search OBLIGATOIREMENT. Recherche EXCLUSIVEMENT pour hier (${yesterdayStr}) et aujourd'hui (${dateStr}). 
+RÈGLE ABSOLUE : NE MENS PAS SUR LES SCORES. S'il n'y a pas de match officiel (foot, basket, rugby), n'invente rien.
+Construis ta réponse en deux parties :
+1. RÉSULTATS : Les vrais scores de la veille ou du jour (si applicables).
+2. NEWS DE FOND : S'il n'y a pas de scores pertinents, fournis 2 actualités de fond : business et finance des clubs (dette, rachat), ou tech dans le sport.
+ARTICLE###[Titre clair]###[Source]###[Résumé riche 10 lignes : enjeux financiers, tech, classement ou histoire]`);
 
   if(sectionsToGenerate.includes('culture'))sectionPrompts.push(`===SECTION:culture===
-UN fait de culture G marquant et précis. 10 lignes denses sans fioritures.`);
+UN fait de culture générale vérifiable, précis et peu connu. Histoire, économie ou lié à l'actualité. 10 lignes détaillées.`);
 
   if(sectionsToGenerate.includes('personnalite'))sectionPrompts.push(`===SECTION:personnalite===
-Portrait d'une personnalité historique (hors tech/biz exclusif).
-1. Qui / Contexte
-2. Accomplissement
-3. Héritage concret aujourd'hui (15 lignes total).`);
+Choisis une personnalité historique majeure (Monde ou France) issue de n'importe quel domaine (science, philosophie, art, histoire militaire, politique, littérature, invention). 
+Rédige un portrait impactant et analytique de 10 à 15 lignes structuré ainsi :
+1. Qui était-elle et son contexte historique.
+2. Son accomplissement majeur.
+3. L'impact concret, mesurable et direct qu'elle a laissé sur notre monde ou notre pays aujourd'hui (qu'avons-nous aujourd'hui grâce à elle concrètement ?).`);
 
   if(sectionsToGenerate.includes('citation'))sectionPrompts.push(`===SECTION:citation===
-Citation généraliste, historique ou philosophique.
-Format STRICT :
-QUOTE###Citation###Auteur, rôle###Analyse 4 lignes de la puissance du message`);
+UNE citation forte vérifiée (vérifie via Search). Généraliste, philosophique, historique, littéraire ou scientifique. Interdiction de faire un focus exclusif sur le business ou la tech.
+QUOTE###[Citation]###[Prénom Nom, rôle/époque]###[Analyse 4-5 lignes : ce qu'elle nous apprend sur la nature humaine ou la société]`);
 
   if(sectionsToGenerate.includes('horoscope'))sectionPrompts.push(`===SECTION:horoscope===
-Recherche Horoscope Vierge du jour (${dateStr}).
-Structure OBLIGATOIRE : 1. Travail, 2. Amour, 3. Finances, 4. Perso.`);
+Utilise Google Search pour trouver l'horoscope Vierge du jour (${dateStr}). Utilise TOUJOURS une seule source fiable (ex: "RTL"). N'invente rien.
+Tu DOIS structurer ta réponse en 4 points détaillés : 1. Travail, 2. Amour, 3. Finances, 4. Personnel.`);
 
   if(sectionsToGenerate.includes('libre'))sectionPrompts.push(`===SECTION:libre===
-Analyse profonde pour: "${freeText}". Sois exhaustif, brutalement factuel et structuré.`);
+Réponds avec un niveau de détail extrême et une vraie profondeur d'analyse au sujet demandé par Théo : "${freeText}".
+Utilise des faits, des exemples concrets, sois direct, exhaustif et ne tourne pas autour du pot. Structure ta réponse en paragraphes clairs.`);
 
-  const prompt=`Tu es le conseiller stratégique de Théo (21 ans, Neoma BS, Sales Tech B2B).
-Date: ${dateStr}.
+  const prompt=`Tu es le conseiller stratégique et rédacteur d'un brief matinal premium pour Théo (21 ans, étudiant Neoma Business School, passionné de tech et de vente B2B).
+Date du jour : ${dateStr}
 
-RÈGLES ABSOLUES DE SURVIE DU CODE :
-1. INTERDICTION FORMELLE d'ajouter du Markdown (*, **, #) autour des balises de structure "===SECTION" ou "ARTICLE###" ou "TERM###" ou "QUOTE###". Écris les balises en texte brut absolu.
-2. Respecte la syntaxe exacte sans dévier, sinon l'application crashe.
-3. Sois dense, analytique, zéro complaisance. Aucun blabla introductif. Ne t'excuse jamais.
+RÈGLES ABSOLUES :
+- Utilise Google Search pour TOUTES les infos. Tolérance zéro sur les hallucinations.
+- Ton : direct, brutalement honnête, analytique, dense. Zéro complaisance.
+- Respecte les marqueurs (ARTICLE###, TERM###, QUOTE###) sans insérer de sauts de ligne intempestifs.
 
 ${sectionPrompts.join('\n\n')}
 ===END===`;
 
   try{
-    // Utilisation de gemini-2.5-flash pour maximiser la robustesse de l'instruction et du Tool Use
     const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -624,29 +603,14 @@ ${sectionPrompts.join('\n\n')}
         tools:[{google_search:{}}]
       })
     });
-    
     clearInterval(stepInterval);
     steps.forEach(s=>document.getElementById(s).classList.remove('active'));
-    
     const data=await res.json();
-    if(!res.ok){
-      const e=data.error?.message||JSON.stringify(data.error);
-      logDebug(`Erreur API: ${res.status} - ${e}`);
-      throw new Error(`API ${res.status}: ${e}`);
-    }
-    
+    if(!res.ok){const e=data.error?.message||JSON.stringify(data.error);throw new Error(`API ${res.status}: ${e}`);}
     const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-    logDebug("Réponse brute reçue (" + text.length + " caractères).");
-    if(!text)throw new Error('Réponse vide du modèle. Réesaie.');
+    if(!text)throw new Error('Réponse vide');
 
     const newSections=parseSections(text);
-    logDebug("Sections extraites: " + Object.keys(newSections).join(', '));
-    
-    if (Object.keys(newSections).length === 0) {
-       logDebug("Regex a échoué. Texte brut: \n" + text.substring(0, 500) + "...");
-       throw new Error("Le format du texte généré n'a pas pu être lu. Vérifie les logs Debug.");
-    }
-
     const allSections={...cachedSections,...newSections};
     localStorage.setItem(CACHE_KEY,JSON.stringify(allSections));
     
@@ -660,27 +624,19 @@ ${sectionPrompts.join('\n\n')}
     document.getElementById('infos-empty').style.display='block';
     document.getElementById('infos-empty').innerHTML=`
       <div class="empty-icon">⚠</div>
-      <div class="empty-title">Échec du parsing</div>
+      <div class="empty-title">Erreur</div>
       <div class="empty-sub">${err.message}</div>
-      <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('settings',document.getElementById('tab-settings'))">Voir Debug →</button>`;
+      <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block" onclick="switchTab('settings',document.getElementById('tab-settings'))">Config →</button>`;
   }
   document.getElementById('generateBtn').disabled=false;
 }
 
-// ─── PARSE SECTIONS (BLINDÉ) ──────────────────────────────
+// ─── PARSE SECTIONS ───────────────────────────────────────
 function parseSections(text){
   const sections={};
-  // Regex permissive: autorise les espaces, ignore la casse, gère les lignes multiples
-  const re=/===SECTION:\s*(\w+)\s*===([\s\S]*?)(?====SECTION:|===END===|$)/ig;
+  const re=/===SECTION:(\w+)===([\s\S]*?)(?====SECTION:|===END===|$)/g;
   let m;
-  
-  // Nettoyage de sécurité basique (au cas où le LLM s'obstine à mettre du gras)
-  let safeText = text.replace(/\*\*/g, ''); 
-  
-  while((m=re.exec(safeText))!==null){
-    const key = m[1].toLowerCase().trim();
-    sections[key] = m[2].trim();
-  }
+  while((m=re.exec(text))!==null)sections[m[1].toLowerCase()]=m[2].trim();
   return sections;
 }
 
@@ -701,10 +657,9 @@ function renderBriefFromSections(sections, visibleTopics){
     if(isVisible) delay+=60;
 
     if(key==='vocab'){
-      const line=content.split('\n').find(l=>l.includes('TERM###'))||content;
-      // Tolère les espaces autour des séparateurs
-      const p=line.split(/###/).map(s=>s.replace('TERM','').trim()).filter(Boolean);
-      const word=p[0]||'Mot non défini',cat=p[1]||'',def=p[2]||content,ex=p[3]||'',scenario=p[4]||'';
+      const line=content.split('\n').find(l=>l.startsWith('TERM###'))||content;
+      const p=line.replace('TERM###','').split('###').map(s=>s.trim());
+      const word=p[0]||'',cat=p[1]||'',def=p[2]||content,ex=p[3]||'',scenario=p[4]||'';
       briefText+=`Vocabulaire. ${word}. ${def}. `;
       html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
         ${sectionHeader(meta,'open')}
@@ -717,8 +672,8 @@ function renderBriefFromSections(sections, visibleTopics){
         </div></div>`;
 
     }else if(key==='citation'){
-      const line=content.split('\n').find(l=>l.includes('QUOTE###'))||content;
-      const p=line.split(/###/).map(s=>s.replace('QUOTE','').trim()).filter(Boolean);
+      const line=content.split('\n').find(l=>l.startsWith('QUOTE###'))||content;
+      const p=line.replace('QUOTE###','').split('###').map(s=>s.trim());
       const quote=p[0]||content,author=p[1]||'',analysis=p[2]||'';
       briefText+=`Citation. ${quote} — ${author}. `;
       html+=`<div class="brief-section" data-section="${key}" style="display:${displayStyle};animation-delay:${delay}ms">
@@ -740,9 +695,9 @@ function renderBriefFromSections(sections, visibleTopics){
       const lines=content.split('\n');
       let articlesHtml='';let hasArticles=false;
       for(const line of lines){
-        if(!line.includes('ARTICLE###'))continue;
+        if(!line.startsWith('ARTICLE###'))continue;
         hasArticles=true;
-        const p=line.split(/###/).map(s=>s.replace('ARTICLE','').trim()).filter(Boolean);
+        const p=line.replace('ARTICLE###','').split('###').map(s=>s.trim());
         const title=p[0]||'',source=p[1]||'',summary=p[2]||p[3]||'';
         if(!title)continue;
         briefText+=`${title}. ${summary} `;
